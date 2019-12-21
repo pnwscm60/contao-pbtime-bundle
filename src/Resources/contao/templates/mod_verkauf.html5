@@ -1,0 +1,466 @@
+<?php 
+$objUser = FrontendUser::getInstance();
+$nkurz = $objUser->nkurz;
+if (FE_USER_LOGGED_IN === true) : //alles folgende nur für eingeloggte User!
+if ($objUser->isMemberOf(1)) :
+    // der Benutzer gehört der Gruppe mit der ID 1 an
+?>
+
+<?php // BEREICH VERKAUF ?>
+<div id="verkaufjobs" style="clear:left;
+   <?php /* Ausblenden in folgenden targets */ if(in_array($_REQUEST['trg'], array('tlist','mlist','admin','profil','')) || in_array($this->trg, array('tlist', 'mlist','admin',profil,''))):?>
+	display:none;
+<?php endif;?>"> 
+<div id="leistheader"><div id="neuespro" class="leistwahl">NEUES PROJEKT</div><div id="promanage"  class="leistwahl">PROJEKTRAPPORT </div><div id="regie" class="leistwahl">REGIE</div><div class="headright">
+<button type="button" class="leist" id="goHome"><img class="goHome home" src="files/images/homew.png"></button></div></div>
+
+<?php //falls projekt gewählt -> EDIT-Maske ?>
+<div class="" id="editproject" style="
+<?php if($this->proj!=''): echo "display:block"; else: "display:none"; endif;?>
+">
+<?php if ($this->eproject): foreach ($this->eproject as $epro): ?>
+<h1>Projekt editieren**</h1>
+<form action="verkauf.html" id="projektedit" class="protimeform" method="post" enctype="application/x-www-form-urlencoded">
+<input type="hidden" name="id" value="<?php echo $epro['id']?>">
+<input type="hidden" name="todo" value="updatepro">
+<input type="hidden" name="trg" value="vkf">
+<input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
+ <?php //aria-label="Enthält zwingend: &#10;– K-Nummer&#10;– Name&#10;– Kurzbeschrieb (zB Umbau)">?>
+
+<div class="grundform"><span class="hint--right hint--rounded" aria-label="K-Nr. aus SAP">
+	<label for="knr" class="grundform">K-Nummer*</label>
+	<input type="text" name="knr" id="knr" class="grundform" value="<?php echo $epro['knr']?>" required>
+</div>
+<div class="grundform"><span class="hint--right hint--rounded" aria-label="Name des Kunden">
+	<label for="kname" class="grundform">Name*</label>
+	<input type="text" name="kname" id="kname" class="grundform" value="<?php echo $epro['kname']?>" required>
+</div>
+<div class="grundform"><span class="hint--right hint--rounded" aria-label="Wohnort des Kunden">
+	<label for="wohnort" class="grundform">Wohnort*</label>
+	<input type="text" name="wohnort" id="wohnort" class="grundform" value="<?php echo $epro['wohnort']?>" required>
+</div>
+<div class="grundform"><span class="hint--right hint--rounded" aria-label="Lieferadresse aus SAP">
+	<label for="ladress" class="grundform">Lieferadresse*</label>
+    <input type="text" name="ladress" id="ladress" class="grundform" value="<?php echo $epro['ladress']?>">
+    </span>
+</div>
+<div class="grundform">
+	<label for="descript" class="grundform">Projektbeschreibung</label>
+    <input type="text" name="descript" id="descript" class="grundform" value="<?php echo $epro['descript']?>">
+</div>
+<div class="datumform" style="float:left;margin-right:1em;clear:left;">
+	<label for="start" class="datumform">Startdatum*</label>
+    <input type="text" name="start" id="dpick66" class="datumform" value="<?php echo $epro['start']?>" readonly required>
+</div>
+<div class="datumform" style="float:left;margin-right:1em;">
+	<label for="enddone" class="datumform">Ende effektiv</label>
+    <input type="text" name="enddone" id="dpick88" class="datumform" value="<?php echo $epro['enddone']?>" readonly>
+</div>
+
+<div style="clear:both;"></div>
+<div class="submit">    
+<button type="submit" class="submit" id="submit">speichern</button>
+<button type="button" class="goHome">abbrechen</button>
+</div>
+</form>
+<button class="filter" style="margin-top:1em;float:left;" id="projDelete" data-id="<?php echo $this->pid ?>">Projekt löschen</button>
+<!-- </form> -->
+<?php endforeach; endif; ?>
+</div>
+
+
+<?php // NEUES PROJEKT ERFASSEN ?>
+<div id="verkaufjobs" style="clear:left;margin-top:6px;
+   <?php /* Ausblenden in folgenden targets */ if(in_array($_REQUEST['trg'], array('tlist','mlist','admin','')) || in_array($this->trg, array('tlist', 'mlist','admin',''))):?>
+	display:none;
+<?php endif;?>"> 
+
+
+<div class="" id="newproject" style="display:none;">
+<h1>Projekt erfassen</h1>
+<form action="verkauf.html" id="newpro" class="protimeform" method="post" enctype="application/x-www-form-urlencoded">
+<input type="hidden" name="todo" value="insertpro">
+<input type="hidden" name="trg" value="vkf">
+<input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
+ 
+<div class="grundform"><span class="hint--right hint--rounded" aria-label="K-Nr. aus SAP">
+	<label for="knr" class="grundform">K-Nummer*</label>
+	<input type="text" name="knr" id="knr" class="grundform" value="" required>
+</div>
+<div class="grundform"><span class="hint--right hint--rounded" aria-label="Name des Kunden">
+	<label for="kname" class="grundform">Name*</label>
+	<input type="text" name="kname" id="kname" class="grundform" value="" required>
+</div>
+<div class="grundform"><span class="hint--right hint--rounded" aria-label="Wohnort des Kunden">
+	<label for="wohnort" class="grundform">Wohnort*</label>
+	<input type="text" name="wohnort" id="wohnort" class="grundform" value="" required>
+</div>
+<div class="grundform"><span class="hint--right hint--rounded" aria-label="Lieferadresse aus SAP">
+	<label for="ladress" class="grundform">Lieferadresse*</label>
+    <input type="text" name="ladress" class="grundform" value="">
+    </span>
+</div>
+<div class="grundform">
+	<label for="descript" class="grundform">Beschreibung</label>
+    <input type="text" name="descript" class="grundform" value="">
+</div>
+<div class="datumform" style="float:left;margin-right:1em;clear:left;">
+	<label for="start" class="datumform">Startdatum*</label>
+    <input type="text" name="start" id="dpick6" class="datumform" value="" readonly required>
+</div>
+
+<div style="clear:both;"></div>
+<div class="submit">    
+<button type="submit" class="submit" id="submit">speichern</button>
+<button type="button" class="goHome">abbrechen</button>
+</div>
+</form>
+</div>     
+</div>
+    
+<div id="vkfreport" style="clear:left;margin-top:6px;display:none;
+   <?php /* Einblenden in folgenden targets */ if($_REQUEST['todo']=='report'):?>
+	display:block;>
+ <?php endif;?>">       
+    <h1>Leistungsrapport <div style="display:inline-block;margin-left:1em;"><img class="pdfrep" data-pdf="<?php echo $this->projekt?>" src="assets/contao/images/iconPDF.svg"><img style="margin-left:0.4em;width:18px;" class="editpro" data-editpro="<?php echo $this->projekt?>" src='files/images/edit.svg' ></div></h1>
+    <div>Projekt: <?php echo $this->ptitle;?></div>
+    <div style="float:left;margin-right:1em;">Start: <?php echo $this->start;?></div>
+    <div style="">Ende: <?php echo $this->enddone;?></div>
+    <?php if($this->regrap):?>
+    <h2 style="margin-top:1em;">Regierapporte</h2>
+    <?php foreach($this->regrap as $regrap): ?>
+        <div class="prolist">
+        Regierapport <?php echo $regrap['nr']?> [<?php echo $regrap['regiedat']?>]<span class="hint--right hint--rounded" aria-label="<?php echo $regrap['typ']=='A' ? 'Arbeitszeit' : ($regrap['typ']=='V' ? 'Verbrauchsmaterial' : 'Maschinenzeit'); ?>">[<?php echo $regrap['typ']?>]</span> <?php if($regrap['finale']==0):?>
+            <span class="hint--right hint--rounded" aria-label="erstellt, nicht bestätigt"><img class="erstellt" src="files/images/erstellt.svg" style="width:18px;margin-bottom:-3px;" data-pro="<?php echo $this->projekt?>" data-typ="<?php echo $regrap['typnr']?>" data-id="<?php echo $regrap['id']?>"></span>
+            <span class="hint--right hint--rounded" aria-label="Leistung editieren"><img class="rledit" src="files/images/edit.svg" style="width:18px;margin-bottom:-3px;" data-pro="<?php echo $this->projekt?>" data-typ="<?php echo $regrap['typnr']?>" data-id="<?php echo $regrap['id']?>"></span>
+        <?php else: ?>    
+            <span class="hint--right hint--rounded" aria-label="abgeschlossen"><img class="erledigt" src="files/images/erledigt.svg" style="width:18px;margin-bottom:-3px;"></span>
+        <?php endif;?>
+            <span class="hint--right hint--rounded" aria-label="PDF drucken"><img id="printrr" class="pdfrrep" data-pdf="proj=<?php echo $this->projekt?>&regid=<?php echo $regrap['id']?>&typ=<?php echo $regrap['typnr']?>" src="files/images/pdf.svg" style="width:18px;margin-bottom:-3px;"></span>
+        </div>
+    <?php endforeach; endif; ?>
+    <h2 style="margin-top:1em;">Arbeitsleistungen</h2>
+     <div style="margin-top:1em;">
+    <div class="time header">
+    <div class='prolist' style="margin-bottom:5px;">
+   	 	<div class='dat'>Total Std.</div>
+    	 	<div class='times'> <?php echo $this->total/60?></div>
+    	<div class='timetitle'></div>
+		</div></div>
+ <?php if ($this->rsumme): foreach ($this->rsumme as $sum): ?>
+ 	<div class="time header">
+    <div class='prolist'>
+   	 	<div class='dat'>Total Std.</div>
+    	 	<div class='times'> <?php echo ($sum['summe'])/60?></div>
+    	<div class='timetitle'> <?php echo $sum['ctitle']?></div>
+		</div></div>
+    <?php if ($this->rzeit): foreach ($this->rzeit as $tim): ?>
+    <?php if ($tim['pid']==$sum['catid']):?>
+  <div class="time">
+    <div class='prolist'>
+    	<div class='dat'> Total Std.</div>
+    	<div class='times'> <?php echo ($tim['zeit'])/60?></div>
+    	<div class='timetitle'> <?php echo $tim['jobtitle']?></div>
+        <div class='times' style="float:right;"> <?php echo $tim['nkurz']?></div>
+    </div>
+  </div>
+    <?php endif; ?>
+  <?php endforeach; endif; //Jobs ?>
+    <div style="height:5px;clear:both;">&nbsp;</div>
+  <?php endforeach; endif; //Kategorie ?>
+</div>
+<h2 style="margin-top:1em;">Verbrauchsmaterial</h2>
+ <div style="margin-top:1em;">
+     <?php if ($this->rmat): foreach ($this->rmat as $rmat): ?>
+     <div class="time">
+    <div class='prolist'>
+    	<div class='dat'> <?php echo $rmat['datum']?></div>
+    	<div class='times' style="text-align: left;"> <?php echo $rmat['amount']?> <?php echo $rmat['einheit']?></div>
+    	<div class='timetitle'> <?php echo $rmat['mattitle']?></div>
+        <div class='times' style="float:right;"> <?php echo $rmat['nkurz']?></div>
+    </div>
+  </div>
+      <?php endforeach; endif; //Ende Mat ?>
+     </div>
+   <h2 style="margin-top:1em;">Maschinenstunden</h2>
+     <div style="margin-top:1em;">
+    <div class="time header">
+    <div class='prolist' style="margin-bottom:5px;">
+   	 	<div class='dat'>Total Std.</div>
+    	 	<div class='times'> <?php echo $this->totalmach/60?></div>
+    	<div class='timetitle'></div>
+		</div></div>
+ <?php if ($this->rsummemach): foreach ($this->rsummemach as $msum): ?>
+ 	<div class="time header">
+    <div class='prolist'>
+   	 	<div class='dat'>Total Std.</div>
+    	 	<div class='times'> <?php echo ($msum['summe'])/60?></div>
+    	<div class='timetitle'> <?php echo $msum['ctitle']?></div>
+		</div></div>
+    <?php if ($this->rzeitmach): foreach ($this->rzeitmach as $mtim): ?>
+    <?php if ($mtim['pid']==$msum['catid']):?>
+  <div class="time">
+    <div class='prolist'>
+    	<div class='dat'> Total Std.</div>
+    	<div class='times'> <?php echo ($mtim['zeit'])/60?></div>
+    	<div class='timetitle'> <?php echo $mtim['jobtitle']?></div>
+        <div class='times' style="float:right;"> <?php echo $mtim['nkurz']?></div>
+    </div>
+  </div>
+    <?php endif; ?>
+  <?php endforeach; endif; //Jobs ?>
+    <div style="height:5px;clear:both;">&nbsp;</div>
+  <?php endforeach; endif; //Kategorie ?>
+</div>
+</div>
+    
+<div id="regielist" style="display:none;">
+    <h1>Offene Regieeinträge</h1>
+        <?php if($this->regielist): foreach ($this->regielist as $regie):?>
+ 			 <div style="clear:left;" class="regieitem" data-regie="<?php echo $regie['proid']?>"><?php echo $regie['ptitle']?></div> 
+ 			<?php endforeach; endif;?>
+        </div>
+    
+    <div id="editregieview" style="display:none;<?php echo $this->doit=='editregie' ? 'display:block;' : '' ?>">
+        <h1>Regierapport(e) bereitstellen</h1>
+        <div >für Projekt</div>
+        <div style="float:left;margin-right:1em;">Projekt-id <?php echo $this->pid?></div>
+        <div style="float:left;margin-right:1em;">Knr <?php echo $this->knr?></div>
+        <div style="float:left;margin-right:1em;">Kunde <?php echo $this->kname?></div>
+        <div style="float:left;margin-right:1em;margin-bottom:1em;">Ort <?php echo $this->wohnort?></div>
+    <h2 style="clear:left;border-bottom:1px rgb(29,112,183) solid;padding-bottom:3px;">Arbeitszeit</h2>
+    
+        <form action="verkauf.html" id="regierapport2" class="protimeform" method="post" enctype="application/x-www-form-urlencoded">
+        <input type="hidden" name="todo" value="saveregieed">
+        <input type="hidden" name="trg" value="vkf">
+        <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
+        <input type="hidden" name="proj" value="<?php echo $this->pid?>">
+        <?php if($this->regietime): foreach ($this->regietime as $rtime):?>
+            <div style="clear:left;">
+            <input type="hidden" name="tid[]" value="<?php echo $rtime['tid']?>">
+            <div style="float:left;margin-right:1em;">Datum: <?php echo $rtime['datum']?></div> 
+            <div style="float:left;margin-right:1em;">Kategorie: <?php echo $rtime['ctitle']?></div> 
+            <div style="float:left;margin-right:1em;">Arbeitsbereich: <?php echo $rtime['jtitle']?></div>
+            <div style="float:left;margin-right:1em;"><?php echo $rtime['minutes']?></div> 
+            <div style="float:left;margin: 5px 1em 6px 0;clear:left;min-width: 400px;">Bemerkungen MA: <?php echo ($rtime['descript']=='') ? 'keine' : $rtime['descript'];?></div> 
+            
+        <div style="float:left;clear:left;"><div class="floatform" style="clear:left;">
+            <label for="minutes" class="grundform">Std.</label>
+            <span class="hint--top-right hint--rounded" aria-label="Nur erfassen, falls Angabe&#10;MA geändert werden soll"><input type="text" name="rminutes[]" style="text-align:right;width:45px" size="5" value="<?php echo ($rtime['rminutes']=='0') ? '' : $rtime['rminutes']?>"></span>
+        </div>
+        <div style="float:left;"><div class="floatform" style="clear:left;margin-left:1em;">
+            <label for="transatz" class="grundform">Std.-Ansatz</label>
+            <span class="hint--top-right hint--rounded" aria-label="Eingabe obligatorisch!&#10;Falls Angabe später mit&#10;Rechnung erfolgt, 0 eingeben."><input type="text" name="transatz[]" style="text-align:right;width:45px" size="5" value="<?php echo $rtime['transatz']?>" required></span>
+        </div></div>
+        <div class="floatform" style="clear:left;margin-right:0px;">
+            <label for="trtet" class="grundform">Bemerkungen</label>
+            <span class="hint--top-right hint--rounded" aria-label="Ersetzt Bemerkungen des MA.&#10;Feld leer lassen, falls Bemerkungen MA erscheinen sollen."><input type="text" name="trtext[]" style="width:970px;" class="" value="<?php echo $rtime['trtext']?>"></span>
+        </div>
+          </div></div>
+        <div style="height:9px;margin-top:0.5em;margin-bottom:0.5em;clear:both;border-bottom:1px rgb(29,112,183) solid">&nbsp;</div>
+    <?php endforeach; else:?>
+            <div style="margin-bottom:1em;">Keine Arbeitsleistung gemeldet</div>
+            <div style="height:2px;margin-top:0;clear:both;border-bottom:1px rgb(29,112,183) solid">&nbsp;</div>
+    <?php endif;?>
+
+    <h2 style="clear:left;border-bottom:1px rgb(29,112,183) solid;padding-bottom:3px;">Material</h2>    
+        <div> 
+        <?php if($this->regiemat): foreach ($this->regiemat as $rmat):?>
+            <input type="hidden" name="mid[]" value="<?php echo $rmat['mid']?>">
+            <div style="clear:left;">
+            <div style="float:left;margin-right:1em;">Datum: <?php echo $rmat['datum']?></div> 
+            <div style="float:left;margin-right:1em;">Material: <?php echo $rmat['title']?></div> 
+            <div style="float:left;margin-right:1em;">Menge: <?php echo $rmat['amount']?> <?php echo $rmat['einheit']?></div> 
+            <div style="float:left;margin: 5px 1em 6px 0;clear:left;min-width: 400px;">Bemerkungen MA: <?php echo ($rmat['descript']=='') ? 'keine' : $rmat['descript'];?></div> 
+       
+        <div class="floatform" style="clear:left;">
+            <div style="float:left;"><label for="amount" class="grundform">Menge</label>
+            <input type="text" name="rmamount[]" style="text-align:right;width:35px" size="3" value="<?php echo $rmat['rmamount']?>"></div>
+            <div class="selectform" style="float:left;height:2em;"><select name="rmeinheit[]">
+        <option value="0" <?php echo ("0"===$this->rmeinheit) ? 'selected' : ''?>>---</option>
+    	<option value="5" <?php echo ("5"===$this->rmeinheit) ? 'selected' : ''?>>Kilogramm</option>
+        <option value="1" <?php echo ("1"===$this->rmeinheit) ? 'selected' : ''?>>Liter</option>
+        <option value="2" <?php echo ("2"===$this->rmeinheit) ? 'selected' : ''?>>Meter</option>
+        <option value="3" <?php echo ("3"===$this->rmeinheit) ? 'selected' : ''?>>Quadratmeter</option>
+        <option value="4" <?php echo ("4"===$this->rmeinheit) ? 'selected' : ''?>>Stück</option>
+    </select></div>
+        </div>
+        <div class="floatform">
+            <label for="title" class="grundform" style="margin-left:1em;">Text</label>
+            <input type="text" name="rmtext[]" style="width:610px;margin-right:0.7em;" value="<?php echo $rmat['rmtext']?>" required>
+        </div>
+        <div class="floatform" style="clear:left;margin:5px 0 1em 0;">
+            <label for="freitext" class="grundform">Bemerkungen</label>
+            <input type="text" name="rmkommentar[]" style="width:970px;" class="" value="<?php echo $rmat['rmkommentar']?>">
+        </div>
+    <?php endforeach; else:?>
+            <div style="margin-bottom:1em;">Kein Material gemeldet</div>
+            <div style="height:2px;margin-top:0;clear:both;border-bottom:1px rgb(29,112,183) solid">&nbsp;</div>
+    <?php endif;?>
+        
+        <h2 style="clear:left;border-bottom:1px rgb(29,112,183) solid;padding-bottom:3px;">Maschinennutzung</h2>
+        <?php if($this->regiemach): foreach ($this->regiemach as $rmach):?>
+            <div style="clear:left;">
+            <input type="hidden" name="maid[]" value="<?php echo $rmach['tid']?>">
+            <div style="float:left;margin-right:1em;">Datum: <?php echo $rmach['datum']?></div> 
+            <div style="float:left;margin-right:1em;">Kategorie: <?php echo $rmach['ctitle']?></div> 
+            <div style="float:left;margin-right:1em;">Maschine: <?php echo $rmach['jtitle']?></div>
+            <div style="float:left;margin-right:1em;"><?php echo $rmach['minutes']?> h</div> 
+            <div style="float:left;margin: 5px 1em 6px 0;clear:left;min-width: 400px;">Bemerkungen MA: <?php echo ($rmach['descript']=='') ? 'keine' : $rmach['descript'];?></div> 
+            
+        <div style="float:left;clear:left;"><div class="floatform" style="clear:left;">
+            <label for="minutes" class="grundform">Std.</label>
+            <span class="hint--top-right hint--rounded" aria-label="Nur erfassen, falls Angabe&#10;MA geändert werden soll"><input type="text" name="mrminutes[]" style="text-align:right;width:45px" size="5" value="<?php echo ($rtime['rminutes']=='0') ? '' : $rtime['rminutes']?>"></span>
+        </div>
+        <div style="float:left;"><div class="floatform" style="clear:left;margin-left:1em;">
+            <label for="transatz" class="grundform">Std.-Ansatz</label>
+            <span class="hint--top-right hint--rounded" aria-label="Eingabe obligatorisch!&#10;Falls Angabe später mit&#10;Rechnung erfolgt, 0 eingeben."><input type="text" name="mtransatz[]" style="text-align:right;width:45px" size="5" value="<?php echo $rtime['transatz']?>" required></span>
+        </div></div>
+        <div class="floatform" style="clear:left;margin-right:0px;">
+            <label for="trtet" class="grundform">Bemerkungen</label>
+            <span class="hint--top-right hint--rounded" aria-label="Ersetzt Bemerkungen des MA.&#10;Feld leer lassen, falls Bemerkungen MA erscheinen sollen."><input type="text" name="mtrtext[]" style="width:970px;" class="" value="<?php echo $rtime['trtext']?>"></span>
+        </div>
+          </div></div>
+        <div style="height:9px;margin-top:0.5em;margin-bottom:0.5em;clear:both;border-bottom:1px rgb(29,112,183) solid">&nbsp;</div>
+    <?php endforeach; else:?>
+            <div style="margin-bottom:1em;">Keine Maschinennutzung gemeldet</div>
+            <div style="height:2px;margin-top:0;clear:both;border-bottom:1px rgb(29,112,183) solid">&nbsp;</div>
+    <?php endif;?>        
+        
+        </div>
+        <div style="clear:both;"><button type="submit" class="leist" >Regierapport bereitstellen</button></div>
+        </form>
+        </div>    
+   
+</div> 
+<div id="rledit" style="display:none;
+    <?php if($this->rledit=='rledit'):?>
+        display:block;
+    <?php endif;?>
+    margin-top:2em;">
+    <h2 style="clear:left;">Bearbeiten Regierapport Nr. <?php echo $this->arledit['rmnumber']?></h2>    
+        <div> 
+            <form action="verkauf.html" id="regieleistedit" class="protimeform" method="post" enctype="application/x-www-form-urlencoded">
+            <input type="hidden" name="todo" value="saverleistedit">
+            <input type="hidden" name="trg" value="vkf">
+            <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
+            <input type="hidden" name="proj" value="<?php echo $this->arledit['pid']?>">
+            <input type="hidden" name="typ" value="<?php echo $this->arledit['typ']?>">
+        <?php if($this->arledit['typ']==0):?>
+             <div style="clear:left;">
+            <input type="hidden" name="tid" value="<?php echo $this->arledit['tid']?>">
+            <div style="float:left;margin-right:1em;">Datum: <?php echo $this->arledit['datum']?></div> 
+            <div style="float:left;margin-right:1em;">Kategorie: <?php echo $this->arledit['ctitle']?></div> 
+            <div style="float:left;margin-right:1em;">Arbeitsbereich: <?php echo $this->arledit['jtitle']?></div>
+            <div style="float:left;margin-right:1em;"><?php echo $this->arledit['minutes']?></div> 
+            <div style="float:left;margin: 5px 1em 6px 0;clear:left;min-width: 400px;">Bemerkungen MA: <?php echo ($this->arledit['descript']=='') ? 'keine' : $this->arledit['descript'];?></div> 
+            
+        <div style="float:left;clear:left;"><div class="floatform" style="clear:left;">
+            <label for="minutes" class="grundform">Std.</label>
+            <span class="hint--top-right hint--rounded"><input type="text" name="rminutes" style="text-align:right;width:45px" size="5" value="<?php echo ($this->arledit['rminutes']=='0') ? '' : $this->arledit['rminutes']?>"></span>
+        </div>
+        <div style="float:left;"><div class="floatform" style="clear:left;margin-left:1.5em;">
+            <label for="transatz" class="grundform">Std.-Ansatz CHF </label>
+            <span class="hint--top-right hint--rounded" aria-label="Eingabe obligatorisch!&#10;Falls Angabe später mit&#10;Rechnung erfolgt, 0 eingeben."><input type="text" name="transatz" style="text-align:right;width:45px" size="5" value="<?php echo $this->arledit['transatz']?>" required></span>
+        </div></div>
+        <div class="floatform" style="clear:both;margin-right:0px;margin-bottom:1.5em;">
+            <label for="trtet" class="grundform">Bemerkungen</label>
+            <span class="hint--top-right hint--rounded" aria-label="Ersetzt Bemerkungen des MA.&#10"><input type="text" name="trtext" style="min-width:800px;" class="" value="<?php echo $this->arledit['trtext']?>"></span>
+        </div>
+          </div></div>    
+        <?php endif;?>
+        <?php if($this->arledit['typ']==1):?>
+            <div style="clear:left;">
+            <input type="hidden" name="tid" value="<?php echo $this->arledit['mid']?>">
+            <div style="float:left;margin-right:1em;">Datum: <?php echo $this->arledit['datum']?></div> 
+            <div style="float:left;margin-right:1em;">Material: <?php echo $this->arledit['title']?></div> 
+            <div style="float:left;margin-right:1em;">Menge: <?php echo $this->arledit['amount']?> <?php echo $this->arledit['einheit']?></div> 
+            <div style="float:left;margin: 5px 1em 6px 0;clear:left;min-width: 400px;">Bemerkungen MA: <?php echo ($this->arledit['descript']=='') ? 'keine' : $this->arledit['descript'];?></div> 
+       
+        <div class="floatform" style="clear:left;">
+            <div style="float:left;"><label for="amount" class="grundform">Menge</label>
+            <input type="text" name="rmamount" style="text-align:right;width:35px" size="3" value="<?php echo $this->arledit['rmamount']?>">
+            </div></div>
+            <div class="selectform" style="float:left;height:2em;margin-top:4px;"><select name="rmeinheit">
+        <option value="0" <?php echo ("0"===$this->arledit['rmeinheit']) ? 'selected' : ''?>>---</option>
+    	<option value="5" <?php echo ("5"===$this->arledit['rmeinheit']) ? 'selected' : ''?>>Kilogramm</option>
+        <option value="1" <?php echo ("1"===$this->arledit['rmeinheit']) ? 'selected' : ''?>>Liter</option>
+        <option value="2" <?php echo ("2"===$this->arledit['rmeinheit']) ? 'selected' : ''?>>Meter</option>
+        <option value="3" <?php echo ("3"===$this->arledit['rmeinheit']) ? 'selected' : ''?>>Quadratmeter</option>
+        <option value="4" <?php echo ("4"===$this->arledit['rmeinheit']) ? 'selected' : ''?>>Stück</option>
+    </select></div><div style="float:left;margin-top:6px;">
+        <div style="margin: 9px 0.5em 0 1em;float:left;">Ansatz CHF</div> <input type="text" name="rmansatz" style="text-align:right;width:35px;margin-right:1em;float:left;" size="5" value="<?php echo $this->arledit['rmansatz']?>"></div>
+        </div>
+        <div class="floatform">
+            <label for="title" class="grundform" style="margin-left:1em;">Text</label>
+            <input type="text" name="rmtext" style="width:610px;margin-right:0.7em;" value="<?php echo $this->arledit['rmtext']?>" required>
+        </div>
+        <div class="floatform" style="clear:left;margin:5px 0 1em 0;">
+            <label for="freitext" class="grundform">Bemerkungen</label>
+            <input type="text" name="rmkommentar" style="width:970px;" class="" value="<?php echo $this->arledit['rmkommentar']?>">
+        </div> 
+        <?php endif;?>
+        <?php if($this->arledit['typ']==2):?>
+             <div style="clear:left;">
+            <input type="hidden" name="tid" value="<?php echo $this->arledit['maid']?>">
+            <div style="float:left;margin-right:1em;">Datum: <?php echo $this->arledit['datum']?></div> 
+            <div style="float:left;margin-right:1em;">Kategorie: <?php echo $this->arledit['ctitle']?></div> 
+            <div style="float:left;margin-right:1em;">Arbeitsbereich: <?php echo $this->arledit['jtitle']?></div>
+            <div style="float:left;margin-right:1em;"><?php echo $this->arledit['minutes']?> h</div> 
+            <div style="float:left;margin: 5px 1em 6px 0;clear:left;min-width: 400px;">Bemerkungen MA: <?php echo ($this->arledit['descript']=='') ? 'keine' : $this->arledit['descript'];?></div> 
+            
+        <div style="float:left;clear:left;"><div class="floatform" style="clear:left;">
+            <label for="minutes" class="grundform">Std.</label>
+            <span class="hint--top-right hint--rounded"><input type="text" name="rminutes" style="text-align:right;width:45px" size="5" value="<?php echo ($this->arledit['rminutes']=='0') ? '' : $this->arledit['rminutes']?>"></span>
+        </div>
+        <div style="float:left;"><div class="floatform" style="clear:left;margin-left:1.5em;">
+            <label for="transatz" class="grundform">Std.-Ansatz CHF </label>
+            <span class="hint--top-right hint--rounded" aria-label="Eingabe obligatorisch!&#10;Falls Angabe später mit&#10;Rechnung erfolgt, 0 eingeben."><input type="text" name="transatz" style="text-align:right;width:45px" size="5" value="<?php echo $this->arledit['transatz']?>" required></span>
+        </div></div>
+        <div class="floatform" style="clear:both;margin-right:0px;margin-bottom:1.5em;">
+            <label for="trtet" class="grundform">Bemerkungen</label>
+            <span class="hint--top-right hint--rounded" aria-label="Ersetzt Bemerkungen des MA.&#10"><input type="text" name="trtext" style="min-width:800px;" class="" value="<?php echo $this->arledit['trtext']?>"></span>
+        </div>
+          </div></div>    
+        <?php endif;?>
+        </div>
+        <div style="clear:both;margin-top:2em"><button type="submit" class="leist profil" >Regierapport speichern</button></div>
+        </form>
+        </div>       
+   
+<?php // Ende BEREICH Verkauf?>
+<?php /* PROJEKTAUSWAHL  (BEREICHE LEISTUNG UND VERKAUF) */ ?>
+<div id="projektwahl" style="clear:left;margin-top:6px;
+   <?php /* Ausblenden in folgenden targets */ if(in_array($_REQUEST['trg'], array('tlist', 'mlist', 'profil')) || in_array($this->trg, array('tlist', 'mlist', 'profil'))):?>
+	display:none;
+<?php endif;?>">                          
+
+<?php //Projektdaten bereitstellen ?>
+
+    <?php //ACHTUNG SCHALTER EINBAUEN AKTIV/INAKTIV ?>
+<script type="text/javascript">
+var projects = [
+<?php if($this->projectarray): foreach ($this->projectarray as $proj):?>
+   { value: '<?php echo $proj['title']?>', data: '<?php echo $proj['id']?>' },
+<?php endforeach; endif;?>
+];
+</script>
+
+<?php /*Teil Projektsuche VERKAUF */ ?>
+<div id="searchfieldvkf" style="background-color:white;float:left; display:none;<?php /* einblenden in folgenden targets */ if(in_array($_REQUEST['trg'], array('vkf')) && in_array($_REQUEST['filter'], array('alle','aktiv')) || in_array($this->trg, array('vkf')) && in_array($this->filter, array('alle','aktiv'))):?>
+	display:block;
+<?php endif;?>">
+<div style="margin-bottom:5px;background-color:white;text-align:left;">Projekt auswählen:</div>
+    <form><input autofocus type="text" name="project" class="biginput" id="procomplete" data-trg="vkf&todo=report"/>
+</form>
+<div class="autocomplete-suggestions">
+    <div class="autocomplete-suggestion autocomplete-selected"></div>
+</div>
+</div>
+<div style="float:left;margin-top:1.36em;display:none;<?php /* einblenden in folgenden targets */ if(in_array($_REQUEST['trg'], array('vkf')) && in_array($_REQUEST['filter'], array('alle','aktiv')) || in_array($this->trg, array('vkf')) && in_array($this->filter, array('alle','aktiv'))):?>
+	display:block;
+<?php endif;?>"><button style="height:2.4em;" type="button" class="filter" id="<?php if($_REQUEST['filter']=='alle'): echo "showActive"; else: echo "showAll"; endif;?>"><?php if($_REQUEST['filter']=='alle'): echo "AKTIVE"; else: echo "ALLE"; endif;?></button></div>
+</div>
+<?php
+endif; endif;
+?>
