@@ -1,6 +1,6 @@
 <?php
 namespace Pnwscm60\PbtimeBundle\Module;
-class ModuleDaily extends Module
+class ModuleDaily extends \Contao\Module
 {
 	/**
 	 * Template
