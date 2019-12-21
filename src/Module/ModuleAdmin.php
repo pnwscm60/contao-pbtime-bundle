@@ -1,6 +1,6 @@
 <?php
 namespace Pnwscm60\PbtimeBundle\Module;
-class ModuleAdmin extends Module
+class ModuleAdmin extends \Contao\Module
 {
 	/**
 	 * Template
