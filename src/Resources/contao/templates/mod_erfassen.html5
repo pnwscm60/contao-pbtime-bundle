@@ -1,0 +1,494 @@
+<?php 
+$trg = $this->trg;
+$objUser = FrontendUser::getInstance();
+$nkurz = $objUser->nkurz;
+if (FE_USER_LOGGED_IN === true) : //alles folgende nur für eingeloggte User!
+if ($objUser->isMemberOf(1)) :
+    // der Benutzer gehört der Gruppe mit der ID 1 an
+?>
+
+<?php /* PROJEKTAUSWAHL  (BEREICHE LEISTUNG UND VERKAUF) */ ?>
+<div id="projektwahl" style="clear:left;margin-top:6px;
+   <?php /* Ausblenden in folgenden targets */ if(in_array($_REQUEST['trg'], array('tlist', 'vlist', 'machlist', 'profil')) || in_array($trg, array('tlist', 'vlist', 'machlist','profil'))):?>
+	display:none;
+<?php endif;?>">                          
+
+<?php //Projektdaten bereitstellen ?>
+<script type="text/javascript">
+var projects = [
+<?php if($this->projectarray): foreach ($this->projectarray as $proj):?>
+   { value: '<?php echo $proj['title']?>', data: '<?php echo $proj['id']?>' },
+<?php endforeach; endif;?>
+];
+</script>
+
+<?php /*Teil Projektsuche*/ ?>
+<div id="searchfield" style="background-color:white;float:left;<?php if(in_array($_REQUEST['trg'], array('vkf','admin','edit')) || in_array($trg, array('vkf', 'admin','edit'))):?>
+	display:none;
+<?php endif;?>">
+<div style="margin-bottom:5px;background-color:white;text-align:left;">Projekt auswählen:</div>
+    <form><input autofocus type="text" name="project" class="biginput" id="autocomplete" data-trg="<?php if($trg==''): echo "tlist"; else: echo "vkf&scope=pledit";endif; ?>"/>
+</form>
+<div class="autocomplete-suggestions">
+    <div class="autocomplete-suggestion autocomplete-selected"></div>
+</div>
+</div>
+
+<div style="float:left;margin-top:1.36em;display:none;<?php /* einblenden in folgenden targets */ if(in_array($_REQUEST['trg'], array('vkf')) && in_array($_REQUEST['filter'], array('alle','aktiv')) || in_array($trg, array('vkf')) && in_array($this->filter, array('alle','aktiv'))):?>
+	display:block;
+<?php endif;?>"><button style="height:2.4em;" type="button" class="filter" id="<?php if($_REQUEST['filter']=='alle'): echo "showActive"; else: echo "showAll"; endif;?>"><?php if($_REQUEST['filter']=='alle'): echo "AKTIVE"; else: echo "ALLE"; endif;?></button></div>
+</div>
+
+<?php // BEREICH LEISTUNG  ?>
+<?php // *** NAVIGATION  ?>
+
+<?php if($trg):?>
+   <div id="leistheader" style="margin-top:3px;margin-bottom:2em;">
+    <div class="leistwahl  
+        <?php if($trg=="vlist"||$trg=='machlist'): echo "goleistung inactive"; endif;?>" 
+         <?php if($trg=="vlist"||$trg=="machlist"): echo 'data-proj='.$this->projekt; endif;?>>
+        ZEIT</div>
+       
+    <?php if($this->projekt!=5&&$this->projekt!=7&&$this->projekt!=9&&$this->projekt!=10): //bei Probst-Projekten ausblenden?>
+      <div class="leistwahl  
+        <?php if($trg=="tlist"||$trg=='machlist'): echo "material inactive"; endif;?>"
+           <?php if($trg=="tlist"||$trg=="machlist"): echo "data-proj=".$this->projekt; endif;?>>
+          MATERIAL</div>
+      <?php endif;?>
+        
+       <?php if($this->projekt!=5&&$this->projekt!=7&&$this->projekt!=9&&$this->projekt!=10): //bei Probst-Projekten ausblenden?>
+      
+       <div class="leistwahl  
+            <?php if($trg=="tlist"||$trg=='vlist'): echo "maschine inactive"; endif;?>"
+           <?php if($trg=='vlist'||$trg=='tlist'): echo "data-proj=".$this->projekt; endif;?>>MASCHINEN</div>
+      <?php endif;?>
+     
+       <div class='headright' style="<?php echo $this->newtime=='newtime'||$this->newmach=='newmach' ? 'display:none;' : '' ?>"><button type='button' class='leist' id=
+           <?php if($trg=='tlist'):?>
+           'neueZeit'
+           <?php elseif($trg=='vlist'):?>
+           'neuesMat'
+           <?php elseif($trg=='machlist'):?>
+           'neueMach'
+           <?php endif;?>
+            data-proj="<?php echo $this->projekt?>">NEUER EINTRAG</button>
+        </div>
+
+<div style='margin-bottom:1em;clear:both;'>Für Projekt: <?php echo $this->aktprojekt?></div>
+</div>
+<?php endif;?>
+       
+<?php //Bereich Timeliste?>
+<?php //*********************?>
+
+<div class="timelist" id="timelist" style="margin-top:2em;clear:both;display:none 
+
+<?php if($this->doit == 'timelist' && $this->newtime != 'newtime' && $this->edittime != 'edittime') :?>
+	display:block
+<?php endif;?>
+">
+ <div>
+
+ <?php if ($this->summe): foreach ($this->summe as $sum): ?>
+ 	<div class="time header">
+    <div class='prolist'>
+   	 	<div class='dat'>Total</div>
+    	 	<div class='times'> <?php echo $sum['summe']/60?></div>
+    	<div class='timetitle'> <?php echo $sum['ctitle']?></div>
+		</div></div>
+    <?php if ($this->zeit): foreach ($this->zeit as $tim): ?>
+    <?php if ($tim['pid']==$sum['catid']):?>
+  <div class="time">
+    <div class='prolist'>
+    	<div class='dat'> <?php echo $tim['datum']?> 
+		<?php if ($tim['trdone']!='0'): ?> 
+				<?php if ($tim['trfinal']!='0'): ?>
+			 
+			 <img src="files/images/regieok.svg" style="width:18px;margin-bottom:-3px;">
+				<?php else:?>
+				<img src="files/images/regie.svg" style="width:18px;margin-bottom:-3px;">
+				<?php endif;endif;?>
+		</div>
+    	<div class='times'> <?php echo $tim['zeit']/60?></div>
+    	<div class='timetitle'> <?php echo $tim['jobtitle']?></div>
+     <?php // edit und delete dataset ?>
+    <div class="links2"><img class="edittime" src='files/images/edit.png' width="22" data-edittime="proj=<?php echo $this->projekt?>&id=<?php echo $tim['id']?>&pid=<?php echo $tim['pid']?>&trg=tlist"> <img src='files/images/trash.png' width="22" class="deltime" data-deltime="proj=<?php echo $this->projekt?>&id=<?php echo $tim['id']?>"></div>
+    </div>
+ 
+  </div>
+    <?php endif; ?>
+  <?php endforeach; endif; //Jobs ?>
+    <div style="height:5px;clear:both;">&nbsp;</div>
+  <?php endforeach; endif; //Kategorie ?>
+</div>
+</div>
+
+<?php // Bereich NewTime / EDITTIME = neue Arbeitsleistung erfassen
+    // ************************************************** ?>
+    
+<div class="" id="newtime" style="display:none;
+<?php if($this->catFlag == 0 && $trg == 'tlist' && ($this->newtime == 'newtime' || $this->edittime == 'edittime')){ echo "display:block;";}?>">
+ 
+<h1 style="margin:0;clear:left;"><?php echo ($this->edittime == 'edittime') ? 'Arbeitsleistung bearbeiten' : 'Neue Arbeitsleistung erfassen'?></h1>
+<div style="margin: 4px 0 8px 0;border-bottom:1px rgb(29,112,183) solid;padding-bottom:3px;">Für Projekt: <?php echo $this->aktprojekt?></div>
+
+<form action="erfassen.html" id="newtimeform" method="post" enctype="application/x-www-form-urlencoded">
+<input type="hidden" name="proj" value="<?php echo $this->aktprojektid?>">
+    <input type="hidden" name="tid" value="<?php echo $this->tid?>">
+<input type="hidden" name="cid" value="<?php echo $this->cid?>">
+<input type="hidden" name="trg" value="tlist">
+<input type="hidden" name="todo" value="<?php echo ($this->edittime=='edittime') ? 'updatetime' : 'inserttime'?>">
+<input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
+
+<!-- if catFlag = 1 > alle Kategorien anzeigen, dafür Rest ausblenden-->
+<div class="timecontainer" style="<?php if ($this->catFlag==1): echo "display:none;"?> <?php endif;?>">
+		<div style="clear:left; width:332px;height:36px;font-size:20px;padding-right:2px;margin-bottom:6px;"><div style="float:left">Kategorie: </div><div id="cattit0" class="cattit" style="float:left;padding-left:1em;"><?php echo $this->cat?></div>
+        <?php if($this->projekt!=5&&$this->projekt!=7&&$this->projekt!=9&&$this->projekt!=10):?>
+            <img src="files/images/change.svg" style="padding:0;width:1.4em;float:right;" class="katchange" data-LB=<?php echo $this->projekt?>>
+        <?php endif;?></div>
+<div name="jobs" id="jobs" style="clear:left; width:333px;">
+		<?php if ($this->njob): foreach ($this->njob as $njob): ?>
+        <?php if (strcmp($njob['jtitle'], $this->cat)!==0):?>
+		<div class="jobbutton" style="font-size:<?php if(strlen($njob['jtitle'])>23): echo '14px;padding-top:3px;padding-bottom:9px;'; else: echo '19px'; endif;?>;" data-jid="<?php echo $njob['jid']?>" data-cid="<?php echo $njob['cid']?>" data-ctitle="<?php echo $njob['ctitle']?>" data-jtitle="<?php echo $njob['jtitle']?>" data-jid="<?php echo $njob['jid']?>"><?php echo $njob['jtitle']?></div>
+		<?php endif;?>
+        <?php endforeach; endif; ?>
+</div>
+    <div class="jobchoosen" style="float:left;clear:both;margin-right:0.5em;margin-top:2px;">Leistung gewählt: </div><input id = "jobchoosen" style="float:left; margin-top:-3px;width:150px;border:0;" type="text" class="jtitle" style="float:left;"><?php echo (isset($this->job)) ? $this->job : '' ?><?php if (strcmp($njob['jtitle'], $this->cat)===0){ echo $njob['jtitle'];} ?>
+    
+	<div style="clear:left;width:316px;">
+	<div style="margin-top:1em;clear:left;width:260px;float:left;">
+	<div class="timebutton">1</div>
+	<div class="timebutton">2</div>
+	<div class="timebutton">3</div>
+	<div class="timebutton">4</div>
+	<div class="timebutton">5</div>
+	<div class="timebutton">6</div>
+	<div class="timebutton">7</div>
+	<div class="timebutton">8</div>
+	<div class="timebutton">9</div>
+	<div class="timebutton">10</div></div>
+	
+	<div style="float:right; width:40px;margin-top:1em;padding-right:3px;"><div class="minbutton plus15" style="">+15'</div>
+        <div class="minbutton min15" style="">-15'</div></div></div>
+	
+	<input type="hidden" class="jid" name="jid" value="<?php if (strcmp($njob['jtitle'], $this->cat)===0){ echo $njob['jid'];} ?>">
+<div class="datumform" style="float:left;clear:left; width:80px;">
+	<label for="datum" class="datumform">Datum</label>
+	<input type="text" name="datum" id="dpick5" class="datumform" value="<?php echo ($this->edittime=="edittime") ? $this->dat1 : date("d.m.Y") ?>" required readonly>
+</div>
+<div class="amountform" style="float:left;margin: 0 1em 0 1em;width:80px;">
+	<label for="zeit" class="amountform">Dauer Std</label>
+    <span class="hint--top hint--rounded" aria-label="Standard-h/Tag: <?php echo $this->dayhours;?>"><input type="text" name="zeit" id="arbzeit" class="amountform zeit" value="<?php echo $this->minutes/60?>" required>
+    </span>
+</div>
+<?php if($this->projekt!=5 && $this->projekt!=7):?>
+	<div class="tag" style="float:left;margin: 0 1em; width:24px">
+	<div>Regie</div>
+	<input type="checkbox" name="regie" id="checkbox-1" class="regular-checkbox" <?php echo ($this->regie == '1') ? 'checked' : ''?> value="1"><label for="checkbox-1"></label>
+</div>
+<?php endif;?>
+<div class="grundform" style="clear:both;margin-top:8px;"><span class="hint--top hint--rounded" aria-label="Bei Regiearbeit Details angeben">
+	<label for="descript" class="grundform">Kommentar</label>
+	<textarea name="descript" id="descript" rows="2" cols="36" class="grundform" value=""></textarea></span></div>
+<div class="submit">    
+<button type="submit" class="profil submit" id="submiterf" readonly>speichern</button>
+<button type="button" class="profil" id="cancelNewTime">abbrechen</button>
+</div>
+</div>
+</form>
+
+</div>
+
+    <?php /*** KATEGORIE WECHSELN ***/ ?>
+<div class="catcontainer" style="<?php if ($this->catFlag==0): echo "display:none;"?> <?php endif;?>">
+	<div style="margin-bottom:0.66em;">Arbeitsbereich wechseln</div>
+       
+	<div name="jobs" id="jobs" style="clear:left; width:332px;">
+		<?php if ($this->changeCat): foreach ($this->changeCat as $ccat): ?>
+		<div class=" 
+        <?php echo $ccat['cid']==4 || $ccat['cid']==14 || $ccat['cid']==15 || $ccat['cid']==26 ? 'catbutton cat5' : ''?>
+        <?php echo ($ccat['cid']==16 || $ccat['cid']==17 || $ccat['cid']==18 || $ccat['cid']==19 || $ccat['cid']==20 ? 'catbutton cat2' : '5');?>
+        <?php echo ($ccat['cid']==2 || $ccat['cid']==3 || $ccat['cid']==7 || $ccat['cid']==8 || $ccat['cid']==9 || $ccat['cid']==21 ? 'catbutton cat3' : '');?>
+        <?php echo ($ccat['cid']==22 || $ccat['cid']==23  ? 'catbutton cat1' : '');?>
+        " data-pid="<?php echo $this->projekt?>" data-cid="<?php echo $ccat['cid']?>" data-trg="<?php echo $trg?>" data-do="<?php echo $trg=='tlist' ? 'newtime' : 'newmach' ?>"><?php echo $ccat['ctitle']?></div>
+		<?php endforeach; endif; ?>
+</div>
+</div>
+
+<?php //Bereich Matliste?>
+<?php //*********************?>
+
+<div class="matlist" id="matlist" style="clear:both;display:none                              
+                                         
+<?php if($this->doit == 'matlist' && $this->newmat != 'newmat' && $this->editmat != 'editmat') :?>
+	display:block
+<?php endif;?>
+">
+  
+
+<div class="mlisthead" style='
+<?php echo $this->doit=='matlist' ? 'display:block;' : 'display:none;'?>    
+'>
+<div class="kdat" style="width:90px;">Datum</div><div class="kamount">M</div><div class="kmat">Verbrauchsmaterial</div>
+</div>
+
+ <div>
+ <?php if ($this->mat): foreach ($this->mat as $tim): ?>
+  <div class="mat">
+    <div class='prolist'>
+    	<div class='dat'> <?php echo $tim['datum']?>
+        <?php if ($tim['rmdone']!='0'): ?> 
+				<?php if ($tim['rmfinal']!='0'): ?>
+			 <img src="files/images/regieok.svg" style="width:18px;margin-bottom:-3px;">
+				<?php else:?>
+				<img src="files/images/regie.svg" style="width:18px;margin-bottom:-3px;">
+				<?php endif;endif;?>
+            </div>
+    	<div class='amount'> <?php echo $tim['amount']?> <?php echo $tim['einheit']?></div>
+        <div class='material'> <?php echo $tim['title']?></div>
+     <?php // edit und delete dataset ?>
+    <div class="links2"><img class="editmat" src='files/images/edit.png' width="22" data-editmat="proj=<?php echo $this->projekt?>&id=<?php echo $tim['id']?>&pid=<?php echo $tim['pid']?>&trg=vlist"> <img src='files/images/trash.png' width="22" class="delmat" data-delmat="proj=<?php echo $this->projekt?>&id=<?php echo $tim['id']?>"></div>   
+    </div>
+  </div>
+  <?php endforeach; endif; //Jobs ?>
+</div>
+</div>
+
+<?php // Bereich NEWMAT/EDITMAT 
+    // ************************ ?>
+<div class="" id="newmat" style="display:none;
+<?php if($trg == 'vlist' && ($this->editmat == 'editmat')){ echo "display:block;";}?>">
+ 
+<h1 style="margin:0;clear:left;">
+    <?php if($this->editmat == 'editmat') {echo "Material bearbeiten";} else {echo "Neues Material erfassen";}?>
+</h1>
+<div style="margin: 4px 0 8px 0;border-bottom:1px rgb(29,112,183) solid;padding-bottom:3px;">Für Projekt: <?php echo $this->aktprojekt?></div>
+
+<form action="erfassen.html" id="newmatform" method="post" enctype="application/x-www-form-urlencoded">
+<input type="hidden" name="proj" value="<?php echo $this->aktprojektid?>">
+<input type="hidden" name="trg" value="vlist">
+<input type="hidden" name="todo" value="<?php echo ($this->editmat == 'editmat')? "updatemat" : "newmat"?>">>
+<input type="hidden" name="mid" value="<?php echo $this->mid?>">
+<input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
+
+<div class="datumform" style="float:left;clear:left; width:80px;">
+	<label for="datum" class="datumform">Datum*</label>
+	<input type="text" name="datum" id="dpick13" class="datumform" value="<?php echo $this->datum?>" required readonly>
+</div>
+<div class="mattitelform" style="float:left;margin: 0 1em 0 1em;width:205px;">
+	<label for="mtitle" class="mattitleform">Material</label>
+    <input type="text" name="mtitle" id="mtitle" class="mtitle" value="<?php echo $this->title?>" required>
+</div>
+<div class="selectform" style="clear:left;float:left;">
+	<label for="pocurrency" class="custform">Einheit</label>
+	<select name="einheit" id="einheit">
+        <option value="0" <?php echo ("0"===$this->einheit) ? 'selected' : ''?>>Kilogramm</option>
+    	<option value="5" <?php echo ("0"===$this->einheit) ? 'selected' : ''?>>Kilogramm</option>
+        <option value="1" <?php echo ("1"===$this->einheit) ? 'selected' : ''?>>Liter</option>
+        <option value="2" <?php echo ("2"===$this->einheit) ? 'selected' : ''?>>Meter</option>
+        <option value="3" <?php echo ("3"===$this->einheit) ? 'selected' : ''?>>Quadratmeter</option>
+        <option value="4" <?php echo ("4"===$this->einheit) ? 'selected' : ''?>>Stück</option>
+    </select>
+</div>
+<div class="amountform" style="float:left;margin: 0 1em 0 1em;width:80px;">
+	<label for="zeit" class="amountform">Menge</label>
+    <input type="number" pattern="[0-9]*" name="amount" id="amount" class="amountform" value="<?php echo $this->amount?>" required>
+</div>
+<div class="tag" style="float:left;margin: 0 0; width:24px">
+	<div>Regie</div>
+	<input type="checkbox" name="regie" id="checkbox-3" class="regular-checkbox" <?php if($this->regie=="1"): echo "checked"; endif; ?> value="1"><label for="checkbox-3"></label>
+</div>
+<div class="grundform" style="clear:both;margin-top:8px;">
+	<label for="descript" class="grundform">Kommentar</label>
+	<textarea name="descript" id="descript" rows="3" cols="30" class="grundform"><?php echo $this->descript?></textarea></div>
+<div class="submit">    
+<button type="submit" class="submit" id="submit">speichern</button>
+<button type="button" id="cancelNewMat">abbrechen</button>
+</div></form>
+</div>
+
+<!--
+<?php // Bereich EDITMAT = MATERIAL BEARBEITEN
+    // ******************************************* ?>
+<div class="" id="editmat" style="display:none;
+<?php if($trg == 'edit' && ($this->editmat == 'editmat')){ echo "display:block;";}?>">
+ 
+<h1 style="margin:0;">Material bearbeiten</h1>
+<div style="margin: 4px 0 8px 0;border-bottom:1px rgb(29,112,183) solid;padding-bottom:3px;">Für Projekt: <?php echo $this->aktprojekt?></div>
+
+<form action="leistungserfassung.html" id="editmatform" method="post" enctype="application/x-www-form-urlencoded">
+<input type="hidden" name="proj" value="<?php echo $this->aktprojektid?>">
+<input type="hidden" name="trg" value="vlist">
+<input type="hidden" name="todo" value="updatemat">
+<input type="hidden" name="mid" value="<?php echo $this->mid?>">
+<input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
+
+<div class="datumform" style="float:left;clear:left; width:80px;">
+	<label for="datum" class="datumform">Datum*</label>
+	<input type="text" name="datum" id="dpick222" class="datumform" value="<?php echo $this->datum?>" required readonly>
+</div>
+<div class="mattitelform" style="float:left;margin: 0 1em 0 1em;width:205px;">
+	<label for="mtitle" class="mattitleform">Material</label>
+    <input type="text" name="mtitle" id="mtitle" class="mtitle" value="<?php echo $this->title?>" required>
+</div>
+<div class="selectform" style="clear:left;float:left;">
+	<label for="pocurrency" class="custform">Einheit</label>
+	<select name="einheit" id="einheit">
+    	<option value="0" <?php echo ("0"===$this->einheit) ? 'selected' : ''?>>Kilogramm</option>
+        <option value="1" <?php echo ("1"===$this->einheit) ? 'selected' : ''?>>Liter</option>
+        <option value="2" <?php echo ("2"===$this->einheit) ? 'selected' : ''?>>Meter</option>
+        <option value="3" <?php echo ("3"===$this->einheit) ? 'selected' : ''?>>Quadratmeter</option>
+    </select>
+</div>
+<div class="amountform" style="float:left;margin: 0 1em 0 1em;width:80px;">
+	<label for="zeit" class="amountform">Menge</label>
+    <input type="number" pattern="[0-9]*" name="amount" id="amount" class="amountform" value="<?php echo $this->amount?>" required>
+</div>
+<div class="tag" style="float:left;margin: 0 0; width:24px">
+	<div>Regie</div>
+	<input type="checkbox" name="regie" id="checkbox-3" class="regular-checkbox" <?php if($this->regie=="1"): echo "checked"; endif; ?> value="1"><label for="checkbox-3"></label>
+</div>
+<div class="grundform" style="clear:both;margin-top:8px;">
+	<label for="descript" class="grundform">Kommentar</label>
+	<textarea name="descript" id="descript" rows="3" cols="30" class="grundform"><?php echo $this->descript?></textarea></div>
+<div class="submit">    
+<button type="submit" class="submit" id="submit">speichern</button>
+<button type="button" id="cancelNewMat">abbrechen</button>
+</div></form>
+</div>
+-->
+<?php //**** BEREICH MACHLIST (Maschinen) ***********?>
+<div class="timelist" id="machlist" style="clear:both;display:none 
+
+<?php if($this->trg == 'machlist' && $this->newmach != 'newmach' && $this->editmach != 'editmach') :?>
+	display:block
+<?php endif;?>
+">
+ <div style="margin-top:2em;">
+
+ <?php if ($this->summach): foreach ($this->summach as $msum): ?>
+ 	<div class="time header">
+    <div class='prolist'>
+   	 	<div class='dat' style="width:5em;">Total</div>
+    	 	<div class='times'> <?php echo $msum['summe']/60?></div>
+    	<div class='timetitle'> <?php echo $msum['ctitle']?></div>
+		</div></div>
+    <?php if ($this->mach): foreach ($this->mach as $mtim): ?>
+    <?php if ($mtim['pid']==$msum['catid']):?>
+  <div class="time">
+    <div class='prolist'>
+    	<div class='dat' style="width:5em;"> <?php echo $mtim['datum']?> 
+		<?php if ($mtim['trdone']!='0'): ?> 
+				<?php if ($mtim['trfinal']!='0'): ?>
+			 
+			 <img src="files/images/regieok.svg" style="width:18px;margin-bottom:-3px;">
+				<?php else:?>
+				<img src="files/images/regie.svg" style="width:18px;margin-bottom:-3px;">
+				<?php endif;endif;?>
+		</div>
+    	<div class='times'> <?php echo $mtim['zeit']/60?></div>
+    	<div class='timetitle'> <?php echo $mtim['jobtitle']?></div>
+     <?php // edit und delete dataset ?>
+    <div class="links2"><img class="editmach" src='files/images/edit.png' width="22" data-editmach="proj=<?php echo $this->projekt?>&id=<?php echo $mtim['id']?>&pid=<?php echo $mtim['pid']?>&trg=tlist"> <img src='files/images/trash.png' width="22" class="deltime" data-delmach="proj=<?php echo $this->projekt?>&id=<?php echo $mtim['id']?>"></div>
+    </div>
+ 
+  </div>
+    <?php endif; ?>
+  <?php endforeach; endif; //Jobs ?>
+    <div style="height:5px;clear:both;">&nbsp;</div>
+  <?php endforeach; endif; //Kategorie ?>  
+  
+</div>
+</div>
+
+<?php // Bereich NewMach / EDITMACH = neue Maschinenzeit erfassen
+    // ************************************************** ?>
+    
+<div class="" id="newmach" style="display:none;
+<?php if($this->catFlag == 0 && $trg == 'machlist' && ($this->newmach == 'newmach' || $this->editmach == 'editmach')){ echo "display:block;";}?>">
+ 
+<h1 style="margin:0;clear:left;"><?php echo ($this->editmach == 'editmach') ? 'Maschinenzeit bearbeiten' : 'Neue Maschinenzeit erfassen'?></h1>
+<div style="margin: 4px 0 8px 0;border-bottom:1px rgb(29,112,183) solid;padding-bottom:3px;">Für Projekt: <?php echo $this->aktprojekt?></div>
+
+<form action="erfassen.html" id="newmachineform" method="post" enctype="application/x-www-form-urlencoded">
+<input type="hidden" name="proj" value="<?php echo $this->aktprojektid?>">
+    <input type="hidden" name="tid" value="<?php echo $this->tid?>">
+<input type="hidden" name="cid" value="<?php echo $this->cid?>">
+<input type="hidden" name="trg" value="machlist">
+<input type="hidden" name="todo" value="<?php echo ($this->editmach=='editmach') ? 'updatemach' : 'insertmach'?>">
+<input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
+
+<!-- if catFlag = 1 > alle Kategorien anzeigen, dafür Rest ausblenden-->
+
+<div class="timecontainer" style="<?php if ($this->catFlag==1): echo "display:none;"?> <?php endif;?>">
+		<div style="clear:left; width:332px;height:36px;font-size:20px;padding-right:2px;margin-bottom:6px;"><div style="float:left">Kategorie: </div><div id="cattit0" class="cattit" style="float:left;padding-left:1em;"><?php echo $this->cat?></div>
+        <?php if($this->projekt!=5):?>
+            <img src="files/images/change.svg" style="padding:0;width:1.4em;float:right;" class="katchange" data-LB=<?php echo $this->projekt?>>
+        <?php endif;?></div>
+<div name="jobs" id="mjobs" style="clear:left; width:332px;">
+		<?php if ($this->njob): foreach ($this->njob as $njob): ?>
+        <?php if (strcmp($njob['jtitle'], $this->cat)!==0):?>
+		<div class="jobbutton" data-jid="<?php echo $njob['jid']?>" data-cid="<?php echo $njob['cid']?>" data-ctitle="<?php echo $njob['ctitle']?>" data-jtitle="<?php echo $njob['jtitle']?>" data-jid="<?php echo $njob['jid']?>"><?php echo $njob['jtitle']?></div>
+		<?php endif;?>
+        <?php endforeach; endif; ?>
+</div>
+    <div class="jobchoosen" style="float:left;clear:both;margin-right:0.5em;">Leistung gewählt: </div><div class="jtitle" style="float:left;"><?php echo (isset($this->job)) ? $this->job : '' ?><?php if (strcmp($njob['jtitle'], $this->cat)===0){ echo $njob['jtitle'];} ?>
+    </div>
+	
+	<div style="margin-top:1em;clear:left;width:260px;float:left;">
+	<div class="timebutton">1</div>
+	<div class="timebutton">2</div>
+	<div class="timebutton">3</div>
+	<div class="timebutton">4</div>
+	<div class="timebutton">5</div>
+	<div class="timebutton">6</div>
+	<div class="timebutton">7</div>
+	<div class="timebutton">8</div>
+	<div class="timebutton">9</div>
+	<div class="timebutton">10</div></div>
+	
+	<div style="float:right; width:50px;margin-top:1em;padding-right:3px;"><div class="minbutton plus15" style="">+15'</div>
+	<div class="minbutton min15" style="">-15'</div></div>
+	
+	<input type="hidden" class="jid" name="jid" value="<?php if (strcmp($njob['jtitle'], $this->cat)===0){ echo $njob['jid'];} ?>">
+<div class="datumform" style="float:left;clear:left; width:80px;">
+	<label for="datum" class="datumform">Datum</label>
+	<input type="text" name="datum" id="dpick5" class="datumform" value="<?php echo ($this->edittime=="edittime") ? $this->dat1 : date("d.m.Y") ?>" required readonly>
+</div>
+<div class="amountform" style="float:left;margin: 0 1em 0 1em;width:80px;">
+	<label for="zeit" class="amountform">Dauer Std</label>
+    <input type="text" name="zeit" class="amountform " width="10" value="<?php echo $this->minutes/60?>" required>
+    ddd
+</div>
+<?php if($this->projekt!=5&&$this->projekt!=7):?>
+	<div class="tag" style="float:left;margin: 0 1em; width:24px">
+	<div>Regie</div>
+	<input type="checkbox" name="regie" id="checkbox-1" class="regular-checkbox" <?php echo ($this->regie == '1') ? 'checked' : ''?> value="1"><label for="checkbox-1"></label>
+</div>
+<?php endif;?>
+<div class="grundform" style="clear:both;margin-top:8px;"><span class="hint--top hint--rounded" aria-label="Bei Regiearbeit Details angeben">
+	<label for="descript" class="grundform">Kommentar</label>
+	<textarea name="descript" id="descript" rows="3" cols="30" class="grundform" value=""></textarea></span></div>
+<div class="submit">    
+<button type="submit" class="submit" id="submit">speichern</button>
+<button type="button" id="cancelNewTime">abbrechen</button>
+</div>
+</div>
+</form>
+</div>
+
+    <?php /*** KATEGORIE WECHSELN ***/ /*?>
+<div class="catcontainer" style="<?php if ($this->catFlag==0): echo "display:none;"?> <?php endif;?>">
+	<div style="margin-bottom:0.66em;">Arbeitsbereich wechseln</div>
+   
+	<div name="jobs" id="jobs" style="clear:left; width:332px;">
+		<?php if ($this->changeCat): foreach ($this->changeCat as $ccat): ?>
+		<div class="catbutton" data-pid="<?php echo $this->projekt?>" data-cid="<?php echo $ccat['cid']?>"><?php echo $ccat['ctitle']?></div>
+		<?php endforeach; endif; ?>
+</div>
+</div>
+<?php */ ?>
+
+<?php
+endif; endif;
+?>
