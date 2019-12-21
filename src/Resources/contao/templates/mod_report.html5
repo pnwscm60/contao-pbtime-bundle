@@ -1,0 +1,53 @@
+<div id="vkfreport" style="clear:left;margin-top:6px;">       
+    <h1>Leistungs- u. Materialrapport</h1>
+    <div>Projekt: <?php echo $this->ptitle;?></div>
+    <div>Start: <?php echo $this->start;?></div>
+    <div>Ende: <?php echo $this->enddone;?></div>
+    <h2 style="margin-top:1em;">Arbeitsleistungen</h2>
+     <div style="margin-top:1em;">
+    <div class="time header">
+    <div class='prolist' style="margin-bottom:5px;">
+   	 	<div class='dat'>&nbsp;</div>
+    	 	<div class='times'> <?php echo $this->ttzeit/60?></div>
+    	<div class='timetitle'>Arbeitsleistungen insgesamt</div>
+		</div></div>
+ <?php if ($this->rsumme): foreach ($this->rsumme as $sum): ?>
+ 	<div class="time header">
+    <div class='prolist'>
+   	 	<div class='dat'>Total Std.</div>
+    	 	<div class='times'> <?php echo ($sum['summe'])/60?></div>
+    	<div class='timetitle'> <?php echo $sum['ctitle']?></div>
+		</div></div>
+    <?php if ($this->rzeit): foreach ($this->rzeit as $tim): ?>
+    <?php if ($tim['pid']==$sum['catid']):?>
+  <div class="time">
+    <div class="prolist">
+    	<div class='dat'> <?php echo $tim['datum']?></div>
+    	<div class='times'> <?php echo ($tim['zeit'])/60?></div>
+    	<div class='timetitle'> <?php echo $tim['jobtitle']?></div>
+        <?php echo ($tim['descript']!='') ? '<div class="timedescript">'.$tim["descript"].'</div>' : '' ?>
+        <div class='times' style="float:right;"> <?php echo $tim['nkurz']?></div>
+        
+    </div>
+  </div>
+    <?php endif; ?>
+  <?php endforeach; endif; //Jobs ?>
+    <div style="height:5px;clear:both;">&nbsp;</div>
+  <?php endforeach; endif; //Kategorie ?>
+</div>
+<h2 style="margin-top:1em;">Material</h2>
+ <div style="margin-top:1em;">
+     <?php if ($this->repmat): foreach ($this->repmat as $rmat): ?>
+     <div class="time">
+    <div class='prolist'>
+    	<div class='dat'> <?php echo $rmat['datum']?></div>
+    	<div class='times' style="text-align: left;"> <?php echo $rmat['amount']?> <?php echo $rmat['einheit']?></div>
+    	<div class='timetitle'> <?php echo $rmat['mattitle']?></div>
+        <div class='times' style="float:right;"> <?php echo $rmat['nkurz']?></div>
+        <?php echo ($rmat['descript']!='') ? '<div class="timedescript">'.$rmat["descript"].'</div>' : '' ?>
+    </div>
+  </div>
+      <?php endforeach; endif; //Ende Mat ?>
+     </div>
+</div>
+</div> <?php // Ende BEREICH Verkauf?>
