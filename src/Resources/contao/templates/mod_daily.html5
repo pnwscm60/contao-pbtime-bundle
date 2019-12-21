@@ -1,0 +1,29 @@
+<?php 
+$objUser = FrontendUser::getInstance();
+$nkurz = $objUser->nkurz;
+if (FE_USER_LOGGED_IN === true) : //alles folgende nur für eingeloggte User!
+if ($objUser->isMemberOf(1)) :
+    // der Benutzer gehört der Gruppe mit der ID 1 an
+?>
+<div id="kopfzeile" class="noprint goFull" style="height: 2em; margin-top: 12px; margin-bottom: 8px; border-bottom: thin solid green; padding-bottom: 1px;"><img style="float: left; padding-top: 0;" src="files/image/logo-black.svg" alt="" width="50">
+<div style="float: left; margin-left: 5px; font-size: 19px;">Leistungserfassung</div>
+<div id="timetoday" style="float:right;margin-top:0;margin-left:1em;background-color: #fff;border:thin solid <?php if($this->daily<9): echo 'rgba(34,142,1,0.9)'; else: echo 'rgba(250,0,4,1.00)'; endif;?>;padding:2px 3px 3px 3px;"><span class="hint--bottom-left hint--rounded" aria-label="Heute bereits erfasst: &#10;_____________________________________________________&#10;&#10;<?php if($this->dailystu):?>Arbeitsleistungen&#10<?php foreach($this->dailystu as $std):?><?php echo substr($std['ptitle'],0,20)?> | <?php echo $std['jtitle']?> | <?php echo number_format($std['hours'],1)?> &#10;<?php endforeach; endif; ?>&#10;<?php if($this->dailymach):?>Maschinenstunden&#10<?php foreach($this->dailymach as $mstd):?><?php echo substr($mstd['mptitle'],0,20)?> | <?php echo $mstd['mjtitle']?> | <?php echo number_format($mstd['mhours'],1)?> &#10;<?php endforeach; endif; ?>&#10;<?php if($this->dailymat):?>Material&#10<?php foreach($this->dailymat as $mat):?><?php echo substr($mat['ptitle'],0,20)?> | <?php echo $mat['amount']?> <?php echo $mat['einheit']?> <?php echo $mat['mtitle']?>&#10;<?php endforeach; endif;?>"><?php echo number_format($this->daily,1)?></span></div>
+<div id="changeuser" class="userch" style="margin-top:5px;"> User: <?php echo $nkurz;?></div>
+</div>
+
+<?php // Umschalter Hauptbereiche ?>
+<?php $url = $_SERVER['REQUEST_URI'];?>
+<?php //echo $url;?>
+<div id="navi" class="noprint">
+    <a class="wahl <?php if(strpos($url,'erfassen.html') !== false): echo 'inactive'; endif;?>" href="erfassen.html">ERFASSEN</a>
+    <a class="wahl <?php if(strpos($url,'profil.html') !== false): echo 'inactive'; endif;?>" href="profil.html?trg=leistov">PROFIL</a>
+    <?php if ($objUser->isMemberOf(3)): //nur für admin sichtbar ?>
+        <a class="wahl 
+        <?php if(strpos($url,'verkauf.html') !== false): echo 'inactive'; endif;?>
+        " href="verkauf.html?trg=verkauf">VERKAUF</a>
+        <a class="wahl 
+        <?php if(strpos($url,'admin.html') !== false): echo 'inactive'; endif;?>
+        " href="admin.html?trg=admin">ADMIN</a>
+    <?php endif;?>   
+</div>
+<?php endif;endif;?>
