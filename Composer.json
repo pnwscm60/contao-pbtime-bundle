@@ -1,0 +1,42 @@
+{
+    "name": "pnwscm60/contao-pbtime-bundle",
+    "type": "contao-bundle",
+    "description": "Concerto extension für Contao",
+    "license": "LGPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "Markus Schenker",
+            "homepage": "https://github.com/pnwscm60"
+        }
+    ],
+    "require": {
+        "php": "^7.3",
+        "contao/core-bundle": "^4.8"
+    },
+    "require-dev": {
+        "contao/manager-plugin": "^2.0",
+        "doctrine/doctrine-cache-bundle": "^1.3",
+        "friendsofphp/php-cs-fixer": "^2.12",
+        "php-http/guzzle6-adapter": "^1.1",
+        "php-http/message-factory": "^1.0.2",
+        "phpunit/phpunit": "^5.7.26",
+        "symfony/phpunit-bridge": "^3.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Pnwscm60\\PbtimeBundle\\": "src/"
+        }
+    },
+    "classmap": [
+                   "src/Resources/contao/"
+		],
+		"exclude-from-classmap": [
+                   "src/Resources/contao/config/",
+                   "src/Resources/contao/dca/",
+                   "src/Resources/contao/languages/",
+                   "src/Resources/contao/templates/"
+		],
+    "extra": {
+         "contao-manager-plugin": "Pnwscm60\\PbtimeBundle\\ContaoManager\\Plugin"
+    }
+}
