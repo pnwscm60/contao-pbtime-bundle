@@ -12,10 +12,10 @@ use Pnwscm60\PbtimeBundle\Module\ModuleReport;
 use Pnwscm60\PbtimeBundle\Module\ModuleVerkauf;
 $GLOBALS['FE_MOD']['pbtime'] = [ 
 	'erfassen' => ModuleErfassen::class,
-	'admin' => ModuleAdmin::class
-	'daily' => ModuleDaily::class
-	'profil' => ModuleProfil::class
-	'regie' => ModuleRReport::class
-	'verkauf' => ModuleVerkauf::class
+	'admin' => ModuleAdmin::class,
+	'daily' => ModuleDaily::class,
+	'profil' => ModuleProfil::class,
+	'regie' => ModuleRReport::class,
+	'verkauf' => ModuleVerkauf::class,
 	'report' => ModuleReport::class
 ];  
