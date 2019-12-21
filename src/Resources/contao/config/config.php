@@ -7,7 +7,7 @@ use Pnwscm60\PbtimeBundle\Module\ModuleErfassen;
 use Pnwscm60\PbtimeBundle\Module\ModuleAdmin;
 use Pnwscm60\PbtimeBundle\Module\ModuleDaily;
 use Pnwscm60\PbtimeBundle\Module\ModuleProfil;
-use Pnwscm60\PbtimeBundle\Module\ModuleRreport;
+use Pnwscm60\PbtimeBundle\Module\ModuleRReport;
 use Pnwscm60\PbtimeBundle\Module\ModuleReport;
 use Pnwscm60\PbtimeBundle\Module\ModuleVerkauf;
 $GLOBALS['FE_MOD']['pbtime'] = [ 
