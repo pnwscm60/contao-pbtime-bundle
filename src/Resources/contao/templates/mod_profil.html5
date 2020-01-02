@@ -1,28 +1,271 @@
 <?php 
 $objUser = FrontendUser::getInstance();
 $nkurz = $objUser->nkurz;
-if (FE_USER_LOGGED_IN === true) : //alles folgende nur für eingeloggte User!
-if ($objUser->isMemberOf(1)) :
     // der Benutzer gehört der Gruppe mit der ID 1 an
 ?>
-<div id="kopfzeile" class="noprint goFull" style="height: 2em; margin-top: 12px; margin-bottom: 8px; border-bottom: thin solid green; padding-bottom: 1px;"><img style="float: left; padding-top: 0;" src="files/image/logo-black.svg" alt="" width="50">
-<div style="float: left; margin-left: 5px; font-size: 19px;">Leistungserfassung</div>
-<div id="timetoday" style="float:right;margin-top:0;margin-left:1em;background-color: #fff;border:thin solid <?php if($this->daily<9): echo 'rgba(34,142,1,0.9)'; else: echo 'rgba(250,0,4,1.00)'; endif;?>;padding:2px 3px 3px 3px;"><span class="hint--bottom-left hint--rounded" aria-label="Heute bereits erfasst: &#10;_____________________________________________________&#10;&#10;<?php if($this->dailystu):?>Arbeitsleistungen&#10<?php foreach($this->dailystu as $std):?><?php echo substr($std['ptitle'],0,20)?> | <?php echo $std['jtitle']?> | <?php echo number_format($std['hours'],1)?> &#10;<?php endforeach; endif; ?>&#10;<?php if($this->dailymach):?>Maschinenstunden&#10<?php foreach($this->dailymach as $mstd):?><?php echo substr($mstd['mptitle'],0,20)?> | <?php echo $mstd['mjtitle']?> | <?php echo number_format($mstd['mhours'],1)?> &#10;<?php endforeach; endif; ?>&#10;<?php if($this->dailymat):?>Material&#10<?php foreach($this->dailymat as $mat):?><?php echo substr($mat['ptitle'],0,20)?> | <?php echo $mat['amount']?> <?php echo $mat['einheit']?> <?php echo $mat['mtitle']?>&#10;<?php endforeach; endif;?>"><?php echo number_format($this->daily,1)?></span></div>
-<div id="changeuser" class="userch" style="margin-top:5px;"> User: <?php echo $nkurz;?></div>
-</div>
-<?php // Umschalter Hauptbereiche ?>
+
+<?php // BEREICH PROFIL ?>
 <?php $url = $_SERVER['REQUEST_URI'];?>
-<?php //echo $url;?>
-<div id="navi" class="noprint">
-    <a class="wahl <?php if(strpos($url,'erfassen.html') !== false): echo 'inactive'; endif;?>" href="erfassen.html">ERFASSEN</a>
-    <a class="wahl <?php if(strpos($url,'profil.html') !== false): echo 'inactive'; endif;?>" href="profil.html?trg=leistov">PROFIL</a>
-    <?php if ($objUser->isMemberOf(3)): //nur für admin sichtbar ?>
-        <a class="wahl 
-        <?php if(strpos($url,'verkauf.html') !== false): echo 'inactive'; endif;?>
-        " href="verkauf.html?trg=verkauf">VERKAUF</a>
-        <a class="wahl 
-        <?php if(strpos($url,'admin.html') !== false): echo 'inactive'; endif;?>
-        " href="admin.html?trg=admin">ADMIN</a>
-    <?php endif;?> 
+<div id="profil" style="clear:left;
+   <?php /* Ausblenden in folgenden targets if(in_array($_REQUEST['trg'], array('tlist','mlist','vkf','profil','')) || in_array($this->trg, array('tlist', 'mlist','vkf','profil',''))):?>
+	display:none;
+<?php endif;*/?>">
+<div id="leistheader">
+    <a href="profil.html?trg=maprofil" class="anst leistwahl">ANSTELLUNG</a>
+    <a href="profil.html?trg=leistov" class="leistov leistwahl">LEISTUNGSÜBERSICHT</a>
 </div>
-<?php endif;endif;?>
+<div style="clear:both"></div>
+<?php // BEREICH MITARBEITERPROFIL?>
+<div id="maprofil" style="
+<?php if(strpos($url,'trg=maprofil') === false): echo 'display:none;'; else: echo 'display:block;'; endif;?>
+height:580px;">
+<h1>Profil</h1> 
+    <div style="width:350px;float:left;">
+        <form action="admin.html" id="editmember" class="protimeform" method="post" enctype="application/x-www-form-urlencoded">
+         <div class="grundform">
+            <label for="lastname" class="grundform">Nachname*</label>
+            <input type="text" name="lastname" id="" class="form-control grundform" value="<?php echo $this->lastname?>" readonly>
+        </div>
+        <div class="grundform">
+            <label for="firstname" class="grundform">Vorname*</label>
+            <input type="text" name="firstname" id="" class="form-control grundform" value="<?php echo $this->firstname?>" readonly>
+        </div>
+            <div class="grundform">
+            <label for="nkurz" class="grundform">Kürzel*</label>
+            <input type="text" name="nkurz" id="" class="form-control grundform" value="<?php echo $this->nkurz?>" readonly>
+        </div>
+         <div class="grundform">
+            <label for="email" class="grundform">E-Mail</label>
+            <input type="text" name="email" id="" class="form-control grundform" value="<?php echo $this->email?>" readonly>
+        </div>
+         
+        <div class="selectform2" style="clear:both;">
+            <label for="zeitmodell" class="selectform">Zeitmodell</label>
+            <select name="zeitmodell" class="selectform" readonly>
+            <option value="0">Zeitmodell auswählen</option>
+ 			<option value="1" <?php if (!(strcmp("1", $this->zeitmodell))) {echo "selected=\"selected\"";} ?>>Mo-Fr</option>
+            <option value="2" <?php if (!(strcmp("2", $this->zeitmodell))) {echo "selected=\"selected\"";} ?>>Di-Sa</option>
+ 		</select>
+        </div>
+        <div class="selectform2">
+            <label for="cpref" class="selectform">Standardkategorie</label>
+            <select name="cpref" class="selectform" readonly>
+            <option value="0">Standardkategorie wählen</option>
+ 			<?php if($this->mcat): foreach ($this->mcat as $mcat):?>
+ 			<option value="<?php echo $mcat['cid']?>"  <?php if (!(strcmp($this->cpref, $mcat['cid']))) {echo "selected=\"selected\"";} ?>><?php echo $mcat['ctitle']?></option>
+ 			<?php endforeach; endif;?>
+ 		</select>
+        </div> 
+        <div style="clear:both;"></div>
+        </form>
+        
+    <?php //Daten bei Erstaufruf für aktuelles Jahr anzeigen?>
+    <div style="padding-top:1em;">Jahr auswählen, für die Daten angezeigt werden sollen</div>
+    <div><div style="float:left;margin:5px 0.6em 0 0;">Daten für </div><div class="selectform"><select id="yearselect" 
+        <?php for($j=1;$j<=12;$j++): ?>
+            data-a<?php echo $j?>="<?php echo $this->sumMolla[$j]?>"
+			data-aist<?php echo $j?>="<?php echo $this->sumMoista[$j]?>"
+         <?php endfor;?>
+		<?php for($j=1;$j<=12;$j++): ?>
+            data-l<?php echo $j?>="<?php echo $this->sumMolll[$j]?>"
+			data-list<?php echo $j?>="<?php echo $this->sumMoistl[$j]?>"
+         <?php endfor;?>
+	<?php for($j=1;$j<=12;$j++): ?>
+            data-n<?php echo $j?>="<?php echo $this->sumMolln[$j]?>"
+			data-nist<?php echo $j?>="<?php echo $this->sumMoistn[$j]?>"
+         <?php endfor;?> 
+	data-atag="<?php echo $this->atag?>"
+	data-ajahr="<?php echo $this->ajahr?>"
+	data-ljahr="<?php echo $this->ljahr?>"
+	data-njahr="<?php echo $this->njahr?>"
+	data_a_solljahr = "<?php echo $this->sumSolla?>"
+	<?php $sumSolljahr = $this->sumSolla?>
+    data_l_solljahr = "<?php echo $this->sumSolll?>"
+	data_n_solljahr = "<?php echo $this->sumSolln?>"
+	<?php foreach($this->masoll as $msoll):?>
+	<?php if($msoll['foryear']==$this->ajahr):?>
+		<?php $aflag=1;?>
+		data_a_prozent = "<?php echo $msoll['prozent']?>"
+		<?php $prozent = $msoll['prozent']?>
+		data_a_yearhours = "<?php echo $msoll['yearhours']?>"
+		<?php $yearhours = $msoll['yearhours'];?>
+		data_a_yearhoursaldo = "<?php echo $msoll['yearhoursaldo']?>"
+		<?php $yearhoursaldo = $msoll['yearhoursaldo']?>
+		data_a_ferien = "<?php echo $msoll['ferien']?>"
+		<?php $ferien = $msoll['ferien'];?>
+		data_a_feriensaldo = "<?php echo $msoll['feriensaldo']?>"
+		<?php $feriensaldo = $msoll['feriensaldo'];?>
+		<?php for($k=0;$k<12;$k++):?>
+        <?php $monthly[$k] = $msoll['monthhours'][$k];?>                                                                                    
+        data_a_monthly<?php echo $k?> = "<?php echo $msoll['monthhours'][$k];?>"
+        <?php endfor;?>
+        data_a_sumista = "<?php echo $this->sumista?>"
+        <?php $sumista = $this->sumista;?>
+        data_a_ferienist = "<?php echo $this->ferienista?>"
+        <?php $ferienist = $this->ferienista?>
+	<?php endif;?>
+	<?php if($msoll['foryear']==$this->ljahr):?>
+		<?php $lflag=1;?>
+		data_l_prozent = "<?php echo $msoll['prozent']?>"
+		data_l_yearhours = "<?php echo $msoll['yearhours']?>"
+		data_l_yearhoursaldo = "<?php echo $msoll['yearhoursaldo']?>"
+		data_l_ferien = "<?php echo $msoll['ferien']?>"
+		data_l_feriensaldo = "<?php echo $msoll['feriensaldo']?>"
+        <?php for($k=0;$k<12;$k++):?>
+            data_l_monthly<?php echo $k?> = "<?php echo $msoll['monthhours'][$k];?>"
+        <?php endfor;?>
+        data_l_sumistl = "<?php echo $this->sumistl?>"
+        data_l_ferienist = "<?php echo $this->ferienistl?>"
+
+	<?php endif;?>
+	<?php if($msoll['foryear']==$this->njahr):?>
+		<?php $nflag=1;?>
+		data_n_prozent = "<?php echo $msoll['prozent']?>"
+		data_n_yearhours = "<?php echo $msoll['yearhours']?>"
+		data_n_yearhoursaldo = "<?php echo $msoll['yearhoursaldo']?>"
+		data_n_ferien = "<?php echo $msoll['ferien']?>"
+		data_n_feriensaldo = "<?php echo $msoll['feriensaldo']?>"
+        <?php for($k=0;$k<12;$k++):?>
+            data_n_monthly<?php echo $k?> = "<?php echo $msoll['monthhours'][$k];?>"
+        <?php endfor;?>
+		data_n_sumistn = "<?php echo $this->sumistn?>"
+        data_n_ferienist = "<?php echo $this->ferienistn?>"
+	<?php endif;?>
+	<?php endforeach;?>
+	<?php if($lflag!=1):?>
+		data_no_l="0"
+	<?php endif;?>
+	<?php if($nflag!=1):?>
+		data_no_n="0"
+	<?php endif;?>
+	<?php if($aflag!=1):?>
+		data_no_a="0"
+	<?php endif;?>
+	
+	<?php for($l=0;$l<12;$l++):?>
+	data_a_monist<?php echo $l?> = "<?php echo $this->ist_a[$l]?>"
+	data_l_monist<?php echo $l?> = "<?php echo $this->ist_l[$l]?>"
+	data_n_monist<?php echo $l?> = "<?php echo $this->ist_n[$l]?>"
+	<?php endfor;?>
+	><option value="ljahr"><?php echo $this->ljahr?></option><option selected value="ajahr"><?php echo $this->ajahr?></option><option value="njahr"><?php echo $this->njahr?></option></select></div></div>
+
+	    
+        
+    </div>
+    
+    <div style="width:250px;float:left;">
+		<div id="selectedjahr" style="display:none">ajahr</div>
+		<div id="aajahr" style="display:none"><?php echo $this->sumSolla?> </div>
+		<div id="nnjahr" style="display:none"><?php echo $this->sumSolln?></div>
+		<div id="lljahr" style="display:none"><?php echo $this->sumSolll?></div>
+		<h2 id="titelist">Arbeitsstunden <?php echo $this->ajahr?></h2>
+        <div style="width:190px;float:left;">
+			<div class="grundform" id="infoist">
+            Alle Daten gemäss Eintrag in der DB
+        </div>
+		</div>
+        <form action="admin.html" name = "hours" id="hours" class="protimeform" method="post" enctype="application/x-www-form-urlencoded">
+        <input type="hidden" name="todo" value="saveupdatehours">
+        <input type="hidden" name="mid" value="<?php echo $this->mid?>">
+        <input type="hidden" name="trg" value="admin">
+        <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
+		<input type="hidden" name="jahr" id="jahr" value="<?php echo $this->ajahr?>">
+        <div style="width:350px;float:left;margin-top:1em;">
+        <?php if($this->sumMoll): for($i=0;$i<=11;$i++):?>
+            <div class="grundform">
+            <div style="width:55px;margin:8px 0.5em 0 0;text-align:right;float:left;"><?php echo $this->moname[$i];?></div>
+             <div class="profilstd soll<?php echo $i?>" style="margin:8px 0 0 0;float:left;width:33px;">[<? echo number_format($this->sumMoll[$i+1]);?>]</div>
+			 <?php // Solldaten in DB für gegebenes Jahr ?>
+             <input style="width:50px;" type="text" name="monsoll[]" id="monsoll<?php echo $i?>" class="grundform monsoll" value="<?php echo number_format($monthly[$i],1);?>" readonly>
+             <input type="hidden" name="daysoll[]" id="daysoll<?php echo $i?>" value="<?php echo number_format(($monthly[$i]/$this->sumMoll[$i+1]),2) ?>">
+             <?php // Ist-Daten für gegebenes Jahr ?>
+			 <input style="width:50px;" type="text" name="hrist[]" id="monist<?php echo $i?>" class="grundform" readonly value="<?php echo number_format($this->ist_a[$i],1);?>">
+       </div>
+		<?php endfor; endif; ?>
+		</div>
+    </div>
+    <?php //Details ?>
+        <div style="width:230px;float:left;">
+			
+		<h2 id="titeldet">Detailangaben für <?php echo $this->ajahr?></h2>
+        <div style="width:190px;float:left;">
+			<div class="grundform" id="infodetail">
+            Alle Daten gemäss Eintrag in der DB
+        </div>
+		</div>
+        <div style="width:350px;float:left;margin-top:1em;">
+       
+         <div class="grundform">
+            <div style="width:95px;margin:6px 0.5em 0 0;text-align:right;float:left;">Prozentsatz</div>
+            <input style="width:50px;" type="text" id="prozent" name="prozent" class="grundform detail" readonly value="<?php echo $prozent?>">
+         </div>
+         <div class="grundform">
+            <div style="float:left;"><div style="width:95px;margin:6px 0.5em 0 0;text-align:right;float:left;">Stunden soll</div>
+            <input style="width:70px;" type="text" name="yearhours" id="yearhours" class="grundform detail" readonly value="<?php echo $yearhours?>">
+            </div>
+            <div style="float:left;"><div style="width:35px;margin:6px 0.5em 0 0;text-align:right;float:left;">ist</div>
+            <input style="width:70px;" type="text" readonly name="iststd" id="yearsumist" class="grundform" readonly value="<?php echo $sumista?>">
+            </div      
+         </div>
+         <div class="grundform">
+            <div style="float:left;"><div style="width:95px;margin:6px 0.5em 0 0;text-align:right;float:left;">Stunden Saldo</div>
+            <input style="width:50px;" type="text" name="yearhoursaldo" id="yearhoursaldo" readonly class="grundform detail" value="<?php echo $yearhoursaldo?>">
+            </div>
+             <div style="float:left;margin-left:3.8em;"></div>      
+         </div>       
+                
+        <div class="grundform">
+            <div style="float:left;"><div style="width:95px;margin:6px 0.5em 0 0;text-align:right;float:left;">Ferienanspruch</div>
+            <input style="width:50px;" type="text" name="ferien" id="ferien" readonly class="grundform detail" value="<?php echo $ferien?>">
+         </div>
+            <div style="float:left;"><div style="width:55px;margin:6px 0.5em 0 0;text-align:right;float:left;">bezogen</div>
+            <input style="width:50px;" type="text" readonly id="ferienist" name="ferienist" readonly class="grundform" value="<?php echo $ferienist?>">
+         </div>
+        </div>
+         <div class="grundform">
+            <div style="float:left;"><div style="width:95px;margin:6px 0.5em 0 0;text-align:right;float:left;">Ferien Saldo</div>
+            <input style="width:50px;" type="text" name="feriensaldo" id="feriensaldo" readonly class="grundform detail" value="<?php echo $feriensaldo?>">
+            </div>
+            <div style="float:left;margin-left:3.8em;">
+             </div>
+         </div>
+           
+			<div id="infosave" style="display:none;width:85%;margin-top:1em;border: 1px solid rgb(255,13,13);background-color:rgba(255,13,13,0.25);padding:5px;"></div>
+            
+		</div>
+		
+	</form>
+    </div>
+    
+    </div>
+
+</div> <?php //Ende maprofil?>
+<div id="leistov" style="
+<?php if(strpos($url,'trg=leistov') === false): echo 'display:none;'; else: echo 'display:block;'; endif;?>
+">
+<h1>Leistungsübersicht</h1>
+<div style="height:44px;clear:both;">
+<?php for($m=1;$m<13;$m++):?>
+    <a href="profil.html?trg=leistov&fi=<?php echo $m?>" class="fibut"><?php echo $m?></a>
+<?php endfor;?>
+</div>
+<?php $i=0; ?> 
+<?php if($this->dayminutes): foreach($this->dayminutes as $dm):?>
+<div class="tab">  
+      <input id="tab-r<?php echo $i;?>" type="radio" name="tabr">
+      <label for="tab-r<?php echo $i;?>"><div style="float:left;height:24px;width:80px;"><?php echo $dm['datum']?></div><div> <?php echo $dm['daymin']/60?></div></label>
+      <div class="tab-content">
+        <div class="cont">
+          <?php foreach($this->showday[$dm['counter']] as $showday):?>
+    <div style="padding-left:0.6em;float:left;width:75px;clear:left;"><?php echo $showday['datum']?></div>
+    <div style="float:left;width:35px;"><?php echo $showday['minutes']/60?></div>
+    <div class="lovctitle" style="float:left;width:125px;"><?php echo $showday['ctitle']?></div>
+    <div style="float:left;width:140px;"><?php echo $showday['jtitle']?></div>
+    <?php endforeach;?>   
+        </div>
+      </div>
+    </div>
+ <?php $i++;?>    
+<?php endforeach;endif;?>    
+    
+</div> <?php //Ende Leistungsübersicht?>
