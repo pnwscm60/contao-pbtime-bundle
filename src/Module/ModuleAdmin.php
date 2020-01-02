@@ -29,13 +29,6 @@ class ModuleAdmin extends \Contao\Module
         //memberid = frontendUser
         $this->import('FrontendUser', 'User');
 		$userid = $this->User->id;
-        if($userid==''){
-            echo '<script type="text/javascript"> 
-            alert ( "Abmeldung wegen Zeitüberschreitung" );
-            location.href = "probst.html";
-            </script>';
-            exit;
-        }
         
         //projekt
         if($_REQUEST['proj']){
