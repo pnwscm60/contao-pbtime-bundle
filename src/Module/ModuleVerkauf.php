@@ -29,13 +29,6 @@ class ModuleVerkauf extends \Contao\Module
         //memberid = frontendUser
         $this->import('FrontendUser', 'User');
 		$userid = $this->User->id;
-        if($userid==''){
-            echo '<script type="text/javascript"> 
-            alert ( "Abmeldung wegen Zeitüberschreitung" );
-            location.href = "probst.html";
-            </script>';
-            exit;
-        }
         
         //projekt
         if($_REQUEST['proj']){
@@ -74,9 +67,6 @@ class ModuleVerkauf extends \Contao\Module
         }
         $this->Template->projectarray = $projectArray;
         
-        /* PART 1: MANAGING PROJECTS */
-        /* PART 2: BEREICH ADMIN */        
-        /* PART 3: ERFASSEN
         /* PART 4: VERKAUF */
 		/* Update tl_project wenn Anfrage ab editproject */
         /* ****************** */
@@ -99,7 +89,7 @@ class ModuleVerkauf extends \Contao\Module
             } else {
             $enddone1 = strtotime($enddone);
             }
-			$sql='UPDATE tl_project SET tstamp='.time().',kname="'.$kname.'",knr="'.$knr.'",wohnort="'.$wohnort.'",descript="'.$descript.'",start="'.$start1.'",enddone="'.$enddone1.'",ladress="'.$ladress.'" WHERE id='.$id.';';
+			$sql='UPDATE tl_project SET tstamp='.time().',kname="'.$kname.'",knr="'.$knr.'",wohnort="'.$wohnort.'",descript="'.$descript.'",start='.$start1.',enddone='.$enddone1.',ladress="'.$ladress.'" WHERE id='.$id.';';
 		//echo $sql;
 		//$update=mysql_query($sql);
            $objResult = \Database::getInstance()->execute($sql);  
@@ -118,9 +108,8 @@ class ModuleVerkauf extends \Contao\Module
             $start1 = strtotime($start);
             $enddone1 = strtotime($enddone);
 			$sql='INSERT into tl_project (tstamp, knr,kname,wohnort, descript, start, enddone, ladress';
-			$sql.=') VALUES ('.time().',"'.$knr.'","'.$kname.'","'.$wohnort.'","'.$descript.'","'.$start1.'","'.$enddone1.'","'.$ladress.'"';
+			$sql.=') VALUES ('.time().',"'.$knr.'","'.$kname.'","'.$wohnort.'","'.$descript.'",'.$start1.','.$enddone1.',"'.$ladress.'"';
 			$sql.=');';
-			echo $sql;
             $objResult = \Database::getInstance()->execute($sql);  
 			$this->Template->mess = 'Neues Projekt wurde erfolgreich angelegt';
 		}
