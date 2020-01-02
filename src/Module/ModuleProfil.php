@@ -29,13 +29,7 @@ class ModuleProfil extends \Contao\Module
         //memberid = frontendUser
         $this->import('FrontendUser', 'User');
 		$userid = $this->User->id;
-        if($userid==''){
-            echo '<script type="text/javascript"> 
-            alert ( "Abmeldung wegen Zeitüberschreitung" );
-            location.href = "probst.html";
-            </script>';
-            exit;
-        }
+       
            $this->Template->member = $arrMarb;  
              //Zusätzlich Kategorien bereitstellen
                 $sql = 'SELECT id, title from tl_category order by title;';
