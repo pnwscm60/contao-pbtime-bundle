@@ -1,20 +1,20 @@
 <?php 
-$objUser = FrontendUser::getInstance();
+$objUser = \Contao\FrontendUser::getInstance();
 $nkurz = $objUser->nkurz;
-if (FE_USER_LOGGED_IN === true) : //alles folgende nur für eingeloggte User!
-if ($objUser->isMemberOf(1)) :
-    // der Benutzer gehört der Gruppe mit der ID 1 an
 ?>
 <?php // BEREICH ADMIN ?>
 <div id="admin" style="clear:left;
    <?php /* Ausblenden in folgenden targets */ if(in_array($_REQUEST['trg'], array('tlist','mlist','vkf','profil','')) || in_array($this->trg, array('tlist', 'mlist','vkf','profil',''))):?>
 	display:none;
 <?php endif;?>">
-<div id="leistheader"><div id="proanalyse" class="leistwahl">PROJEKTE</div><div class="mamanage leistwahl">TEAM</div><div class="chkat leistwahl">KATEGORIEN</div><div class="chjobs leistwahl">LEISTUNGEN</div>
-<div class="headright" style="display:none;">
-    <button type="button" class="leist" id="neueKat" style="display:none;float:left;">NEUE KAT</button>
-    <button type="button" class="leist" id="neuerJob" style="display:none;float:left;">NEUE LEISTUNG</button>
-    <button type="button" class="leist" id="neuerMarb" style="display:none;float:left;">NEUER MITARBEITER</button>
+<div id="leistheader">
+    <div id="proanalyse" class="leistwahl">PROJEKTE</div>
+    <div class="mamanage leistwahl">TEAM</div><div class="chkat leistwahl">KATEGORIEN</div>
+    <div class="chjobs leistwahl">LEISTUNGEN</div>
+<div class="headright" style="<?php echo $_REQUEST['todo']=='clist'||$_REQUEST['todo']=='jlist' ? 'display:block;' : 'display:none;'?>">
+    <button type="button" class="btn btn-primary leist" id="neueKat" style="<?php echo $_REQUEST['todo']=='clist' ? 'display:block;' : 'display:none;'?>">NEUE KAT</button>
+    <button type="button" class="btn btn-primary leist" id="neuerJob" style="<?php echo $_REQUEST['todo']=='jlist' ? 'display:block;' : 'display:none;'?>">NEUE LEISTUNG</button>
+    <button type="button" class="btn btn-primary leist" id="neuerMarb" style="<?php echo $_REQUEST['todo']=='malist' ? 'display:block;' : 'display:none;'?>">NEUER MITARBEITER</button>
 </div></div>
 <div style="clear:both"></div>
     
@@ -117,21 +117,21 @@ if ($objUser->isMemberOf(1)) :
 
     <div id="newcat" style="display:none">
         <h1>Neue Kategorie</h1>
-        <form action="admin.html" id="newcategory" class="protimeform" method="post" enctype="application/x-www-form-urlencoded">
+        <form action="admin.html" class="protimeform" method="post" enctype="application/x-www-form-urlencoded">
         <input type="hidden" name="todo" value="insertcat">
         <input type="hidden" name="trg" value="admin">
         <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
  
         <div class="grundform">
             <label for="title" class="grundform">Bezeichnung Kategorie*</label>
-            <input type="text" name="title" id="title" class="grundform" value="" required>
+            <input type="text" name="title" id="title" class="form-control grundform" value="" required>
         </div>
         <div class="grundform">
             <label for="descript" class="grundform">Beschreibung</label>
-            <input type="text" name="descript" id="descript" class="grundform" value="">
+            <input type="text" name="descript" id="descript" class="form-control grundform" value="">
         </div>
-        <div class="selectform">
-            <select name="ctyp">
+        <div class="selectform ">
+            <select name="ctyp" class="form-control selectform">
  			<option value="-">Bereich wählen</option>
             <option value="0">Bereich Arbeitsleistungen</option>
             <option value="1">Bereich Maschinen</option>
@@ -140,30 +140,30 @@ if ($objUser->isMemberOf(1)) :
         
         <div style="clear:both;"></div>
         <div class="submit">    
-        <button type="submit" class="submit" id="submit">speichern</button>
-        <button type="button" class="chkat">abbrechen</button>
+        <button type="submit" class="btn btn-primary submit" id="submit">speichern</button>
+        <button type="button" class="btn btn-primary chkat">abbrechen</button>
         </div>
         </form>
     </div>
     <div id="editcat" style="display:none;
         <?php if($this->showCEdit==1): echo 'display:block'; endif; ?>">
-        <h1>Leistungsbereich bearbeiten</h1>
-        <form action="admin.html" id="newcategory" class="protimeform" method="post" enctype="application/x-www-form-urlencoded">
+        <h1>Kategorie bearbeiten</h1>
+        <form action="admin.html"  class="protimeform" method="post" enctype="application/x-www-form-urlencoded">
         <input type="hidden" name="todo" value="edittcat">
         <input type="hidden" name="trg" value="admin">
         <input type="hidden" name="cid" value="<?php echo $this->cid?>">
         <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
         <div class="grundform">
             <label for="title" class="grundform">Bezeichnung Kategorie</label>
-            <input type="text" name="title" id="title" class="grundform" value="<?php echo $this->catitle?>" required>
+            <input type="text" name="title" id="title" class="form-control grundform" value="<?php echo $this->catitle?>" required>
         </div>
         <div class="grundform">
             <label for="descript" class="grundform">Beschreibung*</label>
-            <input type="text" name="descript" id="descript" class="grundform" value="<?php echo $this->cdescription?>">
+            <input type="text" name="descript" id="descript" class="form-control grundform" value="<?php echo $this->cdescription?>">
         </div>
         <div class="selectform2" style="clear:both;">
             <label for="ctyp" class="selectform" >Gültigkeitsbereich</label>
-            <select name="ctyp">
+            <select name="ctyp" class="form-control ">
  			<option value="-" >Bereich wählen</option>
             <option value="0" <?php if (!(strcmp($this->ctyp, '0'))) {echo "selected=\"selected\"";} ?>>Bereich Arbeitsleistungen</option>
             <option value="1" <?php if (!(strcmp($this->ctyp, '1'))) {echo "selected=\"selected\"";} ?>>Bereich Maschinen</option>
@@ -171,8 +171,8 @@ if ($objUser->isMemberOf(1)) :
         </div>
         <div style="clear:both;"></div>
         <div class="submit">    
-        <button type="submit" class="submit" id="submit">speichern</button>
-        <button type="button" class="chkat">abbrechen</button>
+        <button type="submit" class="btn btn-primary submit" id="submit">speichern</button>
+        <button type="button" class="btn btn-primary chkat">abbrechen</button>
         </div>
         </form>
     </div>
@@ -185,7 +185,7 @@ if ($objUser->isMemberOf(1)) :
         <input type="hidden" name="trg" value="admin">
         <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
  		<div class="selectform">
-            <select name="cid">
+            <select name="cid" class="form-control selectform">
  			<?php if($this->allcat): foreach ($this->allcat as $neucat):?>
  			<option value="<?php echo $neucat['cid']?>"><?php echo $neucat['ctitle']?></option>
  			<?php endforeach; endif;?>
@@ -193,17 +193,17 @@ if ($objUser->isMemberOf(1)) :
         </div>
         <div class="grundform">
             <label for="title" class="grundform">Bezeichnung Leistung</label>
-            <input type="text" name="title" id="title" class="grundform" value="" required>
+            <input type="text" name="title" id="title" class=form-control "grundform" value="" required>
         </div>
         <div class="grundform">
             <label for="descript" class="grundform">Beschreibung*</label>
-            <input type="text" name="descript" id="descript" class="grundform" value="">
+            <input type="text" name="descript" id="descript" class="form-control grundform" value="">
         </div>
         
         <div style="clear:both;"></div>
         <div class="submit">    
-        <button type="submit" class="submit" id="submit">speichern</button>
-        <button type="button" class="chjobs">abbrechen</button>
+        <button type="submit" class="btn btn-primary submit" id="submit">speichern</button>
+        <button type="button" class="btn btn-primary chjobs">abbrechen</button>
         </div>
         </form>
     </div>   
@@ -216,7 +216,7 @@ if ($objUser->isMemberOf(1)) :
         <input type="hidden" name="trg" value="admin">
         <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
  		<div class="selectform">
-            <select name="cid" class="selectform">
+            <select name="cid" class="form-control selectform">
             <option value="-">ARBEITSLEISTUNGEN</option>
  			<?php if($this->allcat): foreach ($this->allcat as $neucat):?>
             <?php if($typ==0&&$neucat['ctyp']==1):?>
@@ -231,16 +231,16 @@ if ($objUser->isMemberOf(1)) :
 
         <div class="grundform">
             <label for="title" class="grundform">Bezeichnung Leistung</label>
-            <input type="text" name="title" id="title" class="grundform" value="<?php echo $this->jtitle?>" required>
+            <input type="text" name="title" id="title" class="form-control grundform" value="<?php echo $this->jtitle?>" required>
         </div>
         <div class="grundform">
             <label for="descript" class="grundform">Beschreibung*</label>
-            <input type="text" name="descript" id="descript" class="grundform" value="<?php echo $this->jdescription?>">
+            <input type="text" name="descript" id="descript" class="form-control grundform" value="<?php echo $this->jdescription?>">
         </div>
         <div style="clear:both;"></div>
         <div class="submit">    
-        <button type="submit" class="submit" id="submit">speichern</button>
-        <button type="button" class="chjobs">abbrechen</button>
+        <button type="submit" class="btn btn-primary submit" id="submit">speichern</button>
+        <button type="button" class="btn btn-primary chjobs">abbrechen</button>
         </div>
         </form>
     </div>
@@ -279,19 +279,19 @@ if ($objUser->isMemberOf(1)) :
         
          <div class="grundform">
             <label for="lastname" class="grundform">Nachname*</label>
-            <input type="text" name="lastname" id="" class="grundform" value="<?php echo $this->lastname?>" required>
+            <input type="text" name="lastname" id="" class="form-control grundform" value="<?php echo $this->lastname?>" required>
         </div>
         <div class="grundform">
             <label for="firstname" class="grundform">Vorname*</label>
-            <input type="text" name="firstname" id="" class="grundform" value="<?php echo $this->firstname?>">
+            <input type="text" name="firstname" id="" class="form-control grundform" value="<?php echo $this->firstname?>">
         </div>
             <div class="grundform">
             <label for="nkurz" class="grundform">Kürzel*</label>
-            <input type="text" name="nkurz" id="" class="grundform" value="<?php echo $this->nkurz?>">
+            <input type="text" name="nkurz" id="" class="form-control grundform" value="<?php echo $this->nkurz?>">
         </div>
          <div class="grundform">
             <label for="email" class="grundform">E-Mail</label>
-            <input type="text" name="email" id="" class="grundform" value="<?php echo $this->email?>">
+            <input type="text" name="email" id="" class="form-control grundform" value="<?php echo $this->email?>">
         </div>
          <!--   
          <div class="grundform">
@@ -317,7 +317,7 @@ if ($objUser->isMemberOf(1)) :
  		</select>
         </div>
         <div class="selectform2">
-            <label for="cpref" class="selectform">Standardkategorie</label>
+            <label for="cpref" class=" selectform">Standardkategorie</label>
             <select name="cpref" class="selectform">
             <option value="0">Standardkategorie wählen</option>
  			<?php if($this->mcat): foreach ($this->mcat as $mcat):?>
@@ -327,8 +327,8 @@ if ($objUser->isMemberOf(1)) :
         </div> 
         <div style="clear:both;"></div>
         <div class="submit">    
-        <button type="submit" class="submit profil" id="submit">speichern</button>
-        <button type="button" class="mamanage profil">abbrechen</button>
+        <button type="submit" class="btn btn-primary submit profil" id="submit">speichern</button>
+        <button type="button" class="btn btn-primary mamanage profil">abbrechen</button>
         </div>
         </form>
     </div>
@@ -501,7 +501,7 @@ if ($objUser->isMemberOf(1)) :
             <div style="float:left;"><div style="width:95px;margin:6px 0.5em 0 0;text-align:right;float:left;">Stunden Saldo</div>
             <input style="width:50px;" type="text" name="yearhoursaldo" id="yearhoursaldo" class="grundform detail" value="<?php echo $yearhoursaldo?>">
             </div>
-            <div style="float:left;margin-left:3.8em;"><button class="profil" type="button">Saldieren</button>
+            <div style="float:left;margin-left:3.8em;"><button class="btn btn-primary profil" type="button">Saldieren</button>
             </div      
          </div>       
                 
@@ -517,7 +517,7 @@ if ($objUser->isMemberOf(1)) :
             <div style="float:left;"><div style="width:95px;margin:6px 0.5em 0 0;text-align:right;float:left;">Ferien Saldo</div>
             <input style="width:50px;" type="text" name="feriensaldo" id="feriensaldo" class="grundform detail" value="<?php echo $feriensaldo?>">
             </div>
-            <div style="float:left;margin-left:3.8em;"><button class="profil" type="button">Saldieren</button>
+            <div style="float:left;margin-left:3.8em;"><button class="btn btn-primary profil" type="button">Saldieren</button>
              </div>
          </div>
          <!--<div class="grundform">
@@ -525,8 +525,8 @@ if ($objUser->isMemberOf(1)) :
             <input style="width:50px;" type="text" name="iststd" readonly class="grundform" value="00.0">
          </div>
 		-->
-            <button class="profil" id="setmonsoll" style="margin-top:1em;" type="button">Sollstunden gemäss %satz eintragen</button>
-            <button class="profil" style="margin-top:0.5em;" type="submit">Daten für das gewählte Jahr speichern</button>
+            <button class="btn btn-primary profil" id="setmonsoll" style="margin-top:1em;" type="button">Sollstunden gemäss %satz eintragen</button>
+            <button class="btn btn-primary profil" style="margin-top:0.5em;" type="submit">Daten für das gewählte Jahr speichern</button>
            
 			<div id="infosave" style="display:none;width:85%;margin-top:1em;border: 1px solid rgb(255,13,13);background-color:rgba(255,13,13,0.25);padding:5px;"></div>
 		</div>
@@ -578,7 +578,7 @@ var projects = [
 </div>
 <div style="float:left;margin-top:1.36em;display:none;<?php /* einblenden in folgenden targets */ if(in_array($_REQUEST['trg'], array('vkf')) && in_array($_REQUEST['filter'], array('alle','aktiv')) || in_array($this->trg, array('vkf')) && in_array($this->filter, array('alle','aktiv'))):?>
 	display:block;
-<?php endif;?>"><button style="height:2.4em;" type="button" class="filter" id="<?php if($_REQUEST['filter']=='alle'): echo "showActive"; else: echo "showAll"; endif;?>"><?php if($_REQUEST['filter']=='alle'): echo "AKTIVE"; else: echo "ALLE"; endif;?></button></div>
+<?php endif;?>"><button style="height:2.4em;" type="button" class="btn btn-primary filter" id="<?php if($_REQUEST['filter']=='alle'): echo "showActive"; else: echo "showAll"; endif;?>"><?php if($_REQUEST['filter']=='alle'): echo "AKTIVE"; else: echo "ALLE"; endif;?></button></div>
 </div>
 <?php //profil  ?>
 <?php if($this->trg=='profil'):?>
@@ -596,6 +596,3 @@ var projects = [
 <div class="profilmon"><?php echo $i+1;?></div><div class="profilstd"><?php echo $this->sumMon[$i]['std'];?></div><div class="profilstd"><? echo number_format($this->sumMoll[$i+1]*8*$this->stdfakt,0);?></div>
 <?php endfor; endif; ?>
 <?php endif;?>
-<?php
-endif; endif;
-?>
