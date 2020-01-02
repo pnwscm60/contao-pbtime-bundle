@@ -27,15 +27,8 @@ class ModuleErfassen extends \Contao\Module
         
         /* PART 0: EINGEHENDE DATEN */
         //memberid = frontendUser
-        $this->import('FrontendUser', 'User');
-		$userid = $this->User->id;
-        if($userid==''){
-            echo '<script type="text/javascript"> 
-            alert ( "Abmeldung wegen Zeitüberschreitung" );
-            location.href = "probst.html";
-            </script>';
-            exit;
-        }
+        $objUser = \Contao\FrontendUser::getInstance();
+        $userid = $objUser->id;
         
         //projekt
         if($_REQUEST['proj']){
@@ -46,22 +39,35 @@ class ModuleErfassen extends \Contao\Module
             $trg = $_REQUEST['trg'];
             $this->Template->trg = $trg;
          }
-        
-           // Projektauswahl mit Filter
+           // Projektauswahl mit Filter, Projekt 14 nur für Admin
         if($_REQUEST['filter']!=''){
 				if ($_REQUEST['filter']=="aktiv") {
-					$filter = 'WHERE enddone =""';
+					if ($objUser->isMemberOf(1)||$objUser->isMemberOf(2)){
+                        $filter = 'WHERE enddone ="" AND id!=14';    
+                    } else {
+                        $filter = 'WHERE enddone =""';
+                    }
 				}
 				if ($_REQUEST['filter']=="alle"){
-					$filter = '';
+					if ($objUser->isMemberOf(1)||$objUser->isMemberOf(2)){
+                        $filter = 'WHERE id!=14';
+                    } else {
+                        $filter='';
+                    }
 				}
 			} else {
-			$filter = 'WHERE enddone =""';
+			if ($objUser->isMemberOf(1)){
+                        $filter = 'WHERE enddone ="" AND id!=14';    
+                    } else {
+                        $filter = 'WHERE enddone =""';
+                    }
 		}
         $this->Template->filter = $filter;
-     
+        
+        
         $this->import('Database');
         $sql ="SELECT id, concat(knr,'/',kname,'/',wohnort) as title from tl_project ".$filter." ORDER by title;";
+        //echo $sql;
         $result = $this->Database->prepare($sql)->execute();
         $projectArray = array();
         while($result->next())
@@ -98,6 +104,8 @@ class ModuleErfassen extends \Contao\Module
 	
 		/* Updatefunktion */
 		if($_REQUEST['todo']=='updatetime'){
+            $cid=$_REQUEST['cid'];
+            $jid=$_REQUEST['jid'];
 			$id=$_REQUEST['tid'];
 			$datum=$_REQUEST['datum'];
 			$minutes=$_REQUEST['zeit']*60;
@@ -107,20 +115,28 @@ class ModuleErfassen extends \Contao\Module
             } else {
                 $regie=0;
             }
+            //Weiche falls Projekt = Zeitübertrag
+            if($projekt==14){ // Zeitübertragung > user festlegen
+                $user = $_REQUEST['chmitarb'];
+            } else {
+                $user = $userid;
+            }
             //datum umwandeln in unixtime:
             $dat1 = strtotime($datum);
-			$sql='UPDATE tl_timerec SET tstamp='.time().', datum="'.$dat1.'",minutes='.$minutes.'",tregie='.$regie.',descript="'.$descript.'" WHERE id='.$id.';';
+			$sql='UPDATE tl_timerec SET tstamp='.time().', jobid='.$jid.', catid='.$cid.',datum='.$dat1.',minutes='.$minutes.',tregie='.$regie.',descript="'.$descript.'",memberid='.$user.' WHERE id='.$id.';';
 		//$update=mysql_query($sql);
-            //echo $sql;
-            $objResult = \Database::getInstance()->execute($sql);  
+            echo $sql;
+            $objResult = \Database::getInstance()->execute($sql);
+            header("location:erfassen.html?trg=tlist&proj=".$projekt."");
+            
 		}
 		/* End Update */
 		/* Insertfunktion */
 		if($_REQUEST['todo']=='inserttime'){
-			
 			$catid=$_REQUEST['cid'];
 			$jobid=$_REQUEST['jid'];
 			$datum=$_REQUEST['datum'];
+            //echo $datum;
 			$minutes=$_REQUEST['zeit']*60;
 			$descript=$_REQUEST['descript'];
             if($_REQUEST['regie']==1){
@@ -128,11 +144,17 @@ class ModuleErfassen extends \Contao\Module
             } else {
                 $regie=0;
             }
-            
+            if($projekt==14){ // Zeitübertragung > user festlegen
+                $user = $_REQUEST['chmitarb'];
+            } else {
+                $user = $userid;
+            }
             //datum umwandeln in unixtime:
             $dat1 = strtotime($datum);
-			$sql='INSERT into tl_timerec (tstamp, datum, minutes, descript, pid, catid, jobid, memberid, tregie) VALUES ('.time().','.$dat1.','.$minutes.',"'.$descript.'",'.$projekt.','.$catid.','.$jobid.','.$userid.','.$regie.');';
-			$objResult = \Database::getInstance()->execute($sql);  
+			$sql='INSERT into tl_timerec (tstamp, datum, minutes, descript, pid, catid, jobid, memberid, tregie) VALUES ('.time().','.$dat1.','.$minutes.',"'.$descript.'",'.$projekt.','.$catid.','.$jobid.','.$user.','.$regie.');';
+			//echo $sql;
+            $objResult = \Database::getInstance()->execute($sql);
+            header("location:erfassen.html?trg=tlist&proj=".$projekt."");
 		}
 		
 		/* Deletefunktion */
@@ -150,9 +172,11 @@ class ModuleErfassen extends \Contao\Module
         $aktprojekt = $this->Database->execute($sql0);
 		$this->Template->aktprojekt = $aktprojekt->title;
         $this->Template->aktprojektid = $aktprojekt->id;
-		
-        $sql2="SELECT SUM(minutes) as sum, catid, tl_category.title as ctitle FROM tl_timerec, tl_jobs, tl_category WHERE tl_jobs.id=jobid and tl_category.id = tl_jobs.pid AND tl_timerec.pid=".$projekt." AND memberid = ".$userid." GROUP BY catid";
-           //echo $sql2;
+		if($projekt==14){
+            $sql2="SELECT SUM(minutes) as sum, catid, tl_category.title as ctitle FROM tl_timerec, tl_jobs, tl_category WHERE tl_jobs.id=jobid and tl_category.id = tl_jobs.pid AND tl_timerec.pid=".$projekt." GROUP BY catid";    
+        } else {
+            $sql2="SELECT SUM(minutes) as sum, catid, tl_category.title as ctitle FROM tl_timerec, tl_jobs, tl_category WHERE tl_jobs.id=jobid and tl_category.id = tl_jobs.pid AND tl_timerec.pid=".$projekt." AND memberid = ".$userid." GROUP BY catid";
+        }   //echo $sql2;
 		$sumtime = $this->Database->execute($sql2);
            
 		$arrtime= array();
@@ -164,9 +188,13 @@ class ModuleErfassen extends \Contao\Module
 			'summe' => $sumtime->sum,
 			'catid' => $sumtime->catid,
 			'ctitle' => $sumtime->ctitle
-		);
+		);  
+            if($projekt==14){
+                $sql="SELECT *,tl_timerec.id as tid, tl_jobs.title, tl_category.title as ctitle, concat(lastname,' ',firstname) as mname FROM tl_timerec, tl_jobs, tl_category, tl_member WHERE tl_jobs.id=jobid and tl_category.id = tl_jobs.pid AND tl_timerec.pid=".$projekt." AND memberid = tl_member.id AND tl_jobs.pid = ".$sumtime->catid." ORDER BY datum ASC;";
+            } else {
             $sql = "SELECT *,tl_timerec.id as tid, tl_jobs.title, tl_category.title as ctitle FROM tl_timerec, tl_jobs, tl_category WHERE tl_jobs.id=jobid and tl_category.id = tl_jobs.pid AND tl_timerec.pid=".$projekt." AND memberid = ".$userid." AND tl_jobs.pid = ".$sumtime->catid." ORDER BY datum ASC;";
-        // Falls nicht nur eigene Jobs zeigen > Feld ergänzen kürzel
+            }
+                // Falls nicht nur eigene Jobs zeigen > Feld ergänzen kürzel
             $objtime = $this->Database->execute($sql);
             while ($objtime->next())
 		{
@@ -184,6 +212,7 @@ class ModuleErfassen extends \Contao\Module
 			'tregie' => $objtime->tregie,
 			'trdone' => $objtime->trdone,
 			'trfinal' => $objtime->trfinal,
+            'mname' => $objtime->mname,
 		);
 		}
 		}
@@ -217,15 +246,14 @@ class ModuleErfassen extends \Contao\Module
     
         
     // Machlist
-    if($trg=='machlist'){
-		$this->Template->doit = 'maschinelist'; 
-        //$this->Template->trg = 'machlist';
-        
-        
+    if($trg=='mlist'){
+		$this->Template->doit = 'maschinelist';     
 	
 		/* Updatefunktion */
 		if($_REQUEST['todo']=='updatemach'){
 			$id=$_REQUEST['tid'];
+            $catid=$_REQUEST['cid'];
+			$jobid=$_REQUEST['jid'];
 			$datum=$_REQUEST['datum'];
 			$minutes=$_REQUEST['zeit']*60;
 			$descript=$_REQUEST['descript'];
@@ -236,10 +264,11 @@ class ModuleErfassen extends \Contao\Module
             }
             //datum umwandeln in unixtime:
             $dat1 = strtotime($datum);
-			$sql='UPDATE tl_machrec SET tstamp='.time().', datum="'.$dat1.'",minutes='.$minutes.'",tregie='.$regie.',descript="'.$descript.'" WHERE id='.$id.';';
+			$sql='UPDATE tl_machrec SET tstamp='.time().', jobid='.$jobid.', catid='.$catid.', datum='.$dat1.',minutes='.$minutes.',tregie='.$regie.',descript="'.$descript.'" WHERE id='.$id.';';
 		//$update=mysql_query($sql);
             //echo $sql;
-            $objResult = \Database::getInstance()->execute($sql);  
+            $objResult = \Database::getInstance()->execute($sql);
+           // header("location:erfassen.html?trg=mlist&proj=".$projekt."");
 		}
 		/* End Update */
 		/* Insertfunktion */
@@ -255,12 +284,11 @@ class ModuleErfassen extends \Contao\Module
             } else {
                 $regie=0;
             }
-            echo 'einfügen!';
             //datum umwandeln in unixtime:
             $dat1 = strtotime($datum);
 			$sql='INSERT into tl_machrec (tstamp, datum, minutes, descript, pid, catid, jobid, memberid, tregie) VALUES ('.time().','.$dat1.','.$minutes.',"'.$descript.'",'.$projekt.','.$catid.','.$jobid.','.$userid.','.$regie.');';
 			$objResult = \Database::getInstance()->execute($sql);  
-            echo $sql;
+            header("location:erfassen.html?trg=mlist&proj=".$projekt."");
 		}
 		
 		/* Deletefunktion */
@@ -322,7 +350,7 @@ class ModuleErfassen extends \Contao\Module
     
 	}
 	// Ende Machlist
-    if($_REQUEST['todo']=='machedit'){ //Daten für edittime bereitstellen
+    if($_REQUEST['todo']=='editmach'){ //Daten für editmach bereitstellen
         $sql='SELECT *, tl_machrec.id as tid, tl_machrec.pid as pro, tl_jobs.title as jobtit, tl_category.title as cattitle from tl_machrec, tl_jobs, tl_category WHERE tl_machrec.id='.$_REQUEST['id'].' AND tl_machrec.catid=tl_category.id AND tl_machrec.jobid=tl_jobs.id';
         //echo $sql;
         $objResult = \Database::getInstance()->execute($sql); 
@@ -330,6 +358,7 @@ class ModuleErfassen extends \Contao\Module
         $this->Template->machid = $objResult->tid;
         $this->Template->mpro = $objResult->pro;
         $this->Template->mcatid = $objResult->catid;
+        $this->Template->cattitle = $objResult->cattitle;
         $this->Template->mjobid = $objResult->jobid;
         $this->Template->mjob = $objResult->jobtit;
         $this->Template->mmemberid = $objResult->memberid;
@@ -340,6 +369,10 @@ class ModuleErfassen extends \Contao\Module
         $this->Template->machregie = $objResult->tregie;
         $this->Template->editmach = 'editmach';
         $cattimeedit = $objResult->catid;
+    $sql0 = 'SELECT id, concat(knr,"/", kname,"/", wohnort) as title from tl_project WHERE id = '. $projekt;
+        $aktprojekt = $this->Database->execute($sql0);
+		$this->Template->aktprojekt = $aktprojekt->title;
+        $this->Template->aktprojektid = $aktprojekt->id;
     }
 	
         
@@ -365,8 +398,8 @@ class ModuleErfassen extends \Contao\Module
             //datum umwandeln in unixtime:
             $dat1 = strtotime($datum);
 			$sql='UPDATE tl_costrec SET tstamp='.time().', datum="'.$dat1.'",title="'.$title.'",einheit='.$einheit.',amount='.$amount.',descript="'.$descript.'",mregie='.$regie.' WHERE id='.$id.';';
-		
-            $objResult = \Database::getInstance()->execute($sql);  
+            $objResult = \Database::getInstance()->execute($sql);
+            header("location:erfassen.html?trg=vlist&proj=".$projekt."");
 		}
 		/* End Update */
 		/* Insertfunktion */
@@ -387,7 +420,7 @@ class ModuleErfassen extends \Contao\Module
             $jetzt = time();
 			$sql='INSERT into tl_costrec (tstamp, datum, title, einheit, amount, descript, pid, memberid, mregie) VALUES ('.$jetzt.','.$dat1.',"'.$title.'",'.$einheit.','.$amount.',"'.$descript.'",'.$projekt.','.$userid.','.$regie.');';
 			$objResult = \Database::getInstance()->execute($sql);  
-            //$insert=mysql_query($sql);
+            header("location:erfassen.html?trg=vlist&proj=".$projekt."");
 		}
 		
 		/* Deletefunktion */
@@ -468,7 +501,10 @@ class ModuleErfassen extends \Contao\Module
         if($_REQUEST['do']=='newmach'){
 			$this->Template->newmach = 'newmach'; //
 		}
-		if($_REQUEST['trg']=='tlist'||$_REQUEST['trg']=='machlist'){
+        if($_REQUEST['do']=='newmat'){
+			$this->Template->newmat = 'newmat'; //
+		}
+		if($_REQUEST['trg']=='tlist'||$_REQUEST['trg']=='mlist'){
         //muss in tlist und mechlist funktionieren 
 			
 		// id des Projekts: $pid
@@ -477,9 +513,9 @@ class ModuleErfassen extends \Contao\Module
 		
 		// Katauswahl > immer bereithalten für Wechsel, abhängig von trg
         if($_REQUEST['trg']=='tlist'){
-             $sql="SELECT tl_category.id as cid, tl_category.title as ctitle FROM tl_category WHERE id <> 1 AND typ = 0 AND id!=1 AND id!=6 AND id!=10 AND id!=25 ORDER by ctitle";
+             $sql="SELECT tl_category.id as cid, tl_category.title as ctitle FROM tl_category WHERE id <> 1 AND typ = 0 AND id!= 27 AND id!=1 AND id!=6 AND id!=10 AND id!=25 ORDER by ctitle";
         }
-        if($_REQUEST['trg']=='machlist'){
+        if($_REQUEST['trg']=='mlist'){
              $sql="SELECT tl_category.id as cid, tl_category.title as ctitle FROM tl_category WHERE id <> 1 AND typ = 1 ORDER by ctitle";
         }
 		$objCat = $this->Database->execute($sql);
@@ -533,7 +569,7 @@ class ModuleErfassen extends \Contao\Module
 		} else { // Standard = eingetragene Pref des Users oder falls Absenzen > cat = Absenzen oder falls Maschine = Fahrzeuge
 			$this->import("FrontendUser","User");
 			$userid = $this->User->id;
-            $cpref = ($projekt==5) ? 1 : ($trg=='machlist' ? 11 : ($projekt==7 ? 10 : ($projekt==9 ? 6 : ($projekt==10 ? 25 : $this->User->cpref))));
+            $cpref = ($projekt==14 ? 27 : ($projekt==5 ? 1 : ($trg=='mlist' ? 11 : ($projekt==7 ? 10 : ($projekt==9 ? 6 : ($projekt==10 ? 25 : $this->User->cpref))))));
 			$objJob = $this->Database->execute("SELECT tl_jobs.title as jtitle, tl_category.title as ctitle, tl_category.id as cid, tl_jobs.id as jid FROM tl_jobs, tl_category WHERE tl_category.id=tl_jobs.pid AND tl_category.id = ".$cpref." ORDER by pid, jtitle");
 			$result = $this->Database->prepare("SELECT title FROM tl_category WHERE id=?")->execute($cpref);
 			while ($objJob->next())
@@ -551,10 +587,31 @@ class ModuleErfassen extends \Contao\Module
 	$this->Template->cat = $result->title;
 	$this->Template->pid = $pid;
 	$this->Template->cid = $objJob->cid;
+    // bei edits datum & Co zurückgeben. Time & Mach
+    if($_REQUEST['datum']){ $this->Template->dat1 = $_REQUEST['datum']; $this->Template->mdat1 = $_REQUEST['datum']; }
+    if($_REQUEST['min']){ $this->Template->minutes = $_REQUEST['min']*60; $this->Template->mminutes = $_REQUEST['min']*60; }
+    if($_REQUEST['regie']){ $this->Template->regie = $_REQUEST['regie']; $this->Template->machregie = $_REQUEST['regie']; }
+    if($_REQUEST['descript']){ $this->Template->descript = $_REQUEST['descript']; $this->Template->mdescript = $_REQUEST['descript']; }        
+    if($_REQUEST['formtrg']){ $this->Template->formtrg = $_REQUEST['formtrg']; }
+    if($_REQUEST['formtrg2']){ $this->Template->formtrg2 = $_REQUEST['formtrg2']; }
+    if($_REQUEST['tid']){$this->Template->tid = $_REQUEST['tid']; }
+    if($_REQUEST['tid2']){$this->Template->tid2 = $_REQUEST['tid2']; }        
+    
 	//$this->Template->trg = "tlist";
 		}
     
-        
+    //Daten für Mitarbeiterliste > immer bereit halten
+            $sql = 'select concat(lastname," ",firstname) as mname, nkurz, id from tl_member ORDER by mname;';
+            $objMarb = $this->Database->execute($sql);
+            $arrMarb = array();
+            while($objMarb->next()){
+                $arrMarb[] = array(
+                'mid' => $objMarb->id,
+                'mname' => $objMarb->mname,
+                'nkurz' => $objMarb->nkurz,
+                );
+            }
+            $this->Template->member = $arrMarb;      
     // Immer holen > dailydaten, zuerst TIME
     $sql='SELECT concat(knr,"/", kname,"/", wohnort) as ptitle, tl_jobs.title as jtitle, tl_category.title as ctitle, tl_timerec.minutes, tl_timerec.datum from tl_timerec, tl_jobs, tl_category, tl_project WHERE tl_timerec.memberid = '.$userid.' AND tl_timerec.catid = tl_category.id AND tl_timerec.jobid = tl_jobs.id AND tl_project.id = tl_timerec.pid AND tl_timerec.datum = '.strtotime("today");
         
