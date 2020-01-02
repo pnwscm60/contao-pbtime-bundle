@@ -1,18 +1,18 @@
 <?php 
 $objUser = FrontendUser::getInstance();
 $nkurz = $objUser->nkurz;
-if (FE_USER_LOGGED_IN === true) : //alles folgende nur für eingeloggte User!
-if ($objUser->isMemberOf(1)) :
-    // der Benutzer gehört der Gruppe mit der ID 1 an
 ?>
 
 <?php // BEREICH VERKAUF ?>
 <div id="verkaufjobs" style="clear:left;
-   <?php /* Ausblenden in folgenden targets */ if(in_array($_REQUEST['trg'], array('tlist','mlist','admin','profil','')) || in_array($this->trg, array('tlist', 'mlist','admin',profil,''))):?>
+   <?php /* Ausblenden in folgenden targets  if(in_array($_REQUEST['trg'], array('tlist','mlist','admin','profil','')) || in_array($this->trg, array('tlist', 'mlist','admin',profil,''))):?>
 	display:none;
-<?php endif;?>"> 
-<div id="leistheader"><div id="neuespro" class="leistwahl">NEUES PROJEKT</div><div id="promanage"  class="leistwahl">PROJEKTRAPPORT </div><div id="regie" class="leistwahl">REGIE</div><div class="headright">
-<button type="button" class="leist" id="goHome"><img class="goHome home" src="files/images/homew.png"></button></div></div>
+<?php endif;*/?>"> 
+<div id="leistheader"><div id="neuespro" class="leistwahl">NEUES PROJEKT</div><div id="promanage"  class="leistwahl">PROJEKTRAPPORT </div><div id="regie" class="leistwahl">REGIE</div>
+<?php /*<div class="headright">
+<button type="button" class="leist" id="goHome"><img class="goHome home" src="files/images/homew.png"></button></div>
+*/?>
+</div>
 
 <?php //falls projekt gewählt -> EDIT-Maske ?>
 <div class="" id="editproject" style="
@@ -27,43 +27,46 @@ if ($objUser->isMemberOf(1)) :
 <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
  <?php //aria-label="Enthält zwingend: &#10;– K-Nummer&#10;– Name&#10;– Kurzbeschrieb (zB Umbau)">?>
 
-<div class="grundform"><span class="hint--right hint--rounded" aria-label="K-Nr. aus SAP">
+<div class="formgroup grundform"><span class="hint--right hint--rounded" aria-label="K-Nr. aus SAP">
 	<label for="knr" class="grundform">K-Nummer*</label>
-	<input type="text" name="knr" id="knr" class="grundform" value="<?php echo $epro['knr']?>" required>
+	<input type="text" name="knr" id="knr" class="form-control grundform" value="<?php echo $epro['knr']?>" required>
 </div>
-<div class="grundform"><span class="hint--right hint--rounded" aria-label="Name des Kunden">
+<div class="formgroup grundform"><span class="hint--right hint--rounded" aria-label="Name des Kunden">
 	<label for="kname" class="grundform">Name*</label>
-	<input type="text" name="kname" id="kname" class="grundform" value="<?php echo $epro['kname']?>" required>
+	<input type="text" name="kname" id="kname" class="form-control grundform w250" value="<?php echo $epro['kname']?>" required>
 </div>
-<div class="grundform"><span class="hint--right hint--rounded" aria-label="Wohnort des Kunden">
+<div class="formgroup grundform"><span class="hint--right hint--rounded" aria-label="Wohnort des Kunden">
 	<label for="wohnort" class="grundform">Wohnort*</label>
-	<input type="text" name="wohnort" id="wohnort" class="grundform" value="<?php echo $epro['wohnort']?>" required>
+	<input type="text" name="wohnort" id="wohnort" class="form-control grundform w250" value="<?php echo $epro['wohnort']?>" required>
 </div>
-<div class="grundform"><span class="hint--right hint--rounded" aria-label="Lieferadresse aus SAP">
+<div class="formgroup grundform"><span class="hint--right hint--rounded" aria-label="Lieferadresse aus SAP">
 	<label for="ladress" class="grundform">Lieferadresse*</label>
-    <input type="text" name="ladress" id="ladress" class="grundform" value="<?php echo $epro['ladress']?>">
+    <input type="text" name="ladress" id="ladress" class="form-control grundform w250" value="<?php echo $epro['ladress']?>">
     </span>
 </div>
-<div class="grundform">
+<div class="formgroup grundform">
 	<label for="descript" class="grundform">Projektbeschreibung</label>
-    <input type="text" name="descript" id="descript" class="grundform" value="<?php echo $epro['descript']?>">
+    <input type="text" name="descript" id="descript" class="form-control grundform" value="<?php echo $epro['descript']?>">
 </div>
-<div class="datumform" style="float:left;margin-right:1em;clear:left;">
-	<label for="start" class="datumform">Startdatum*</label>
-    <input type="text" name="start" id="dpick66" class="datumform" value="<?php echo $epro['start']?>" readonly required>
-</div>
-<div class="datumform" style="float:left;margin-right:1em;">
-	<label for="enddone" class="datumform">Ende effektiv</label>
-    <input type="text" name="enddone" id="dpick88" class="datumform" value="<?php echo $epro['enddone']?>" readonly>
-</div>
+ <div class="formgroup datumform" style="float:left;margin-right:1em;clear:left;">
+          <label for="datepicker" class="datumform">Projektstart</label>
+          <input type="text" class="form-control datumform" name="enddone" id="datepicker" readonly="readonly"
+                 value="<?php echo $epro['start']?>" required>
+      </div>
+<div class="formgroup datumform" style="float:left;margin-right:1em;">
+          <label for="datepicker" class="datumform">Projektende</label>
+          <input type="text" class="form-control datumform" name="start" id="datepicker2" readonly="readonly"
+                 value="<?php echo $epro['enddone']?>" required>
+      </div>
+
 
 <div style="clear:both;"></div>
 <div class="submit">    
-<button type="submit" class="submit" id="submit">speichern</button>
-<button type="button" class="goHome">abbrechen</button>
+<button type="submit" class="btn btn-primary submit" id="submit">speichern</button>
+<button type="button" class="btn btn-primary goHome">abbrechen</button>
 </div>
 </form>
-<button class="filter" style="margin-top:1em;float:left;" id="projDelete" data-id="<?php echo $this->pid ?>">Projekt löschen</button>
+<button class="filter btn" style="margin-top:1em;float:left;" id="projDelete" data-id="<?php echo $this->pid ?>">Projekt löschen</button>
 <!-- </form> -->
 <?php endforeach; endif; ?>
 </div>
@@ -71,9 +74,9 @@ if ($objUser->isMemberOf(1)) :
 
 <?php // NEUES PROJEKT ERFASSEN ?>
 <div id="verkaufjobs" style="clear:left;margin-top:6px;
-   <?php /* Ausblenden in folgenden targets */ if(in_array($_REQUEST['trg'], array('tlist','mlist','admin','')) || in_array($this->trg, array('tlist', 'mlist','admin',''))):?>
+   <?php /* Ausblenden in folgenden targets  if(in_array($_REQUEST['trg'], array('tlist','mlist','admin','')) || in_array($this->trg, array('tlist', 'mlist','admin',''))):?>
 	display:none;
-<?php endif;?>"> 
+<?php endif;*/?>"> 
 
 
 <div class="" id="newproject" style="display:none;">
@@ -83,36 +86,40 @@ if ($objUser->isMemberOf(1)) :
 <input type="hidden" name="trg" value="vkf">
 <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
  
-<div class="grundform"><span class="hint--right hint--rounded" aria-label="K-Nr. aus SAP">
+<div class="formgroup grundform"><span class="hint--right hint--rounded" aria-label="K-Nr. aus SAP">
 	<label for="knr" class="grundform">K-Nummer*</label>
-	<input type="text" name="knr" id="knr" class="grundform" value="" required>
+	<input type="text" name="knr" id="knr" class="form-control grundform" value="" required>
 </div>
-<div class="grundform"><span class="hint--right hint--rounded" aria-label="Name des Kunden">
+<div class="formgroup grundform"><span class="hint--right hint--rounded" aria-label="Name des Kunden">
 	<label for="kname" class="grundform">Name*</label>
-	<input type="text" name="kname" id="kname" class="grundform" value="" required>
+	<input type="text" name="kname" id="kname" class="form-control grundform w250" value="" required>
 </div>
-<div class="grundform"><span class="hint--right hint--rounded" aria-label="Wohnort des Kunden">
+<div class="formgroup grundform"><span class="hint--right hint--rounded" aria-label="Wohnort des Kunden">
 	<label for="wohnort" class="grundform">Wohnort*</label>
-	<input type="text" name="wohnort" id="wohnort" class="grundform" value="" required>
+	<input type="text" name="wohnort" id="wohnort" class="form-control grundform w250" value="" required>
 </div>
-<div class="grundform"><span class="hint--right hint--rounded" aria-label="Lieferadresse aus SAP">
+<div class="formgroup grundform"><span class="hint--right hint--rounded" aria-label="Lieferadresse aus SAP">
 	<label for="ladress" class="grundform">Lieferadresse*</label>
-    <input type="text" name="ladress" class="grundform" value="">
+    <input type="text" name="ladress" class="form-control grundform w250" value="">
     </span>
 </div>
-<div class="grundform">
+<div class="formgroup grundform">
 	<label for="descript" class="grundform">Beschreibung</label>
-    <input type="text" name="descript" class="grundform" value="">
+    <input type="text" name="descript" class="form-control grundform" value="">
 </div>
-<div class="datumform" style="float:left;margin-right:1em;clear:left;">
-	<label for="start" class="datumform">Startdatum*</label>
-    <input type="text" name="start" id="dpick6" class="datumform" value="" readonly required>
-</div>
+
+  <div class="formgroup formgroup datumform" style="float:left;margin-right:1em;clear:left;">
+          <label for="datepicker" class="datumform">Datum</label>
+          <input type="text" class="form-control datumform" name="start" id="datepicker" readonly="readonly"
+                 value="<?php echo date("d.m.Y")?>" required>
+      </div>
+    
+
 
 <div style="clear:both;"></div>
 <div class="submit">    
-<button type="submit" class="submit" id="submit">speichern</button>
-<button type="button" class="goHome">abbrechen</button>
+<button type="submit" class="btn btn-primary submit" id="submit">speichern</button>
+<button type="button" class="btn btn-primary goHome">abbrechen</button>
 </div>
 </form>
 </div>     
@@ -122,7 +129,7 @@ if ($objUser->isMemberOf(1)) :
    <?php /* Einblenden in folgenden targets */ if($_REQUEST['todo']=='report'):?>
 	display:block;>
  <?php endif;?>">       
-    <h1>Leistungsrapport <div style="display:inline-block;margin-left:1em;"><img class="pdfrep" data-pdf="<?php echo $this->projekt?>" src="assets/contao/images/iconPDF.svg"><img style="margin-left:0.4em;width:18px;" class="editpro" data-editpro="<?php echo $this->projekt?>" src='files/images/edit.svg' ></div></h1>
+    <h1>Leistungsrapport <div style="display:inline-block;margin-left:1em;"><img class="pdfrep" data-pdf="<?php echo $this->projekt?>" src="files/images/pdf.svg" style="width:25px;float:left;"><img style="margin-left:0.4em;width:25px;" class="editpro" data-editpro="<?php echo $this->projekt?>" src='files/images/edit.svg' ></div></h1>
     <div>Projekt: <?php echo $this->ptitle;?></div>
     <div style="float:left;margin-right:1em;">Start: <?php echo $this->start;?></div>
     <div style="">Ende: <?php echo $this->enddone;?></div>
@@ -175,7 +182,7 @@ if ($objUser->isMemberOf(1)) :
      <div class="time">
     <div class='prolist'>
     	<div class='dat'> <?php echo $rmat['datum']?></div>
-    	<div class='times' style="text-align: left;"> <?php echo $rmat['amount']?> <?php echo $rmat['einheit']?></div>
+    	<div class='times' style="text-align: left;width:40px;"> <?php echo $rmat['amount']?> <?php echo $rmat['einheit']?></div>
     	<div class='timetitle'> <?php echo $rmat['mattitle']?></div>
         <div class='times' style="float:right;"> <?php echo $rmat['nkurz']?></div>
     </div>
@@ -431,9 +438,9 @@ if ($objUser->isMemberOf(1)) :
 <?php // Ende BEREICH Verkauf?>
 <?php /* PROJEKTAUSWAHL  (BEREICHE LEISTUNG UND VERKAUF) */ ?>
 <div id="projektwahl" style="clear:left;margin-top:6px;
-   <?php /* Ausblenden in folgenden targets */ if(in_array($_REQUEST['trg'], array('tlist', 'mlist', 'profil')) || in_array($this->trg, array('tlist', 'mlist', 'profil'))):?>
+   <?php /* Ausblenden in folgenden targets  if(in_array($_REQUEST['trg'], array('tlist', 'mlist', 'profil')) || in_array($this->trg, array('tlist', 'mlist', 'profil'))):?>
 	display:none;
-<?php endif;?>">                          
+<?php endif;*/?>">      
 
 <?php //Projektdaten bereitstellen ?>
 
@@ -451,7 +458,7 @@ var projects = [
 	display:block;
 <?php endif;?>">
 <div style="margin-bottom:5px;background-color:white;text-align:left;">Projekt auswählen:</div>
-    <form><input autofocus type="text" name="project" class="biginput" id="procomplete" data-trg="vkf&todo=report"/>
+    <form><input autofocus type="text" name="project" class="form-control biginput" id="procomplete" data-trg="vkf&todo=report"/>
 </form>
 <div class="autocomplete-suggestions">
     <div class="autocomplete-suggestion autocomplete-selected"></div>
@@ -459,8 +466,5 @@ var projects = [
 </div>
 <div style="float:left;margin-top:1.36em;display:none;<?php /* einblenden in folgenden targets */ if(in_array($_REQUEST['trg'], array('vkf')) && in_array($_REQUEST['filter'], array('alle','aktiv')) || in_array($this->trg, array('vkf')) && in_array($this->filter, array('alle','aktiv'))):?>
 	display:block;
-<?php endif;?>"><button style="height:2.4em;" type="button" class="filter" id="<?php if($_REQUEST['filter']=='alle'): echo "showActive"; else: echo "showAll"; endif;?>"><?php if($_REQUEST['filter']=='alle'): echo "AKTIVE"; else: echo "ALLE"; endif;?></button></div>
+<?php endif;?>"><button style="margin-top:6px;" type="button" class="btn filter" id="<?php if($_REQUEST['filter']=='alle'): echo "showActive"; else: echo "showAll"; endif;?>"><?php if($_REQUEST['filter']=='alle'): echo "AKTIVE"; else: echo "ALLE"; endif;?></button></div>
 </div>
-<?php
-endif; endif;
-?>
