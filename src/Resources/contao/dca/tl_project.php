@@ -192,8 +192,10 @@ $GLOBALS['TL_DCA']['tl_project'] = array
 			),
 			'sql'       => "int(1) unsigned NOT NULL default '0'"
 		),
-
-	
+    'memberid'     => array
+		(
+			'sql' => "int(10) unsigned NOT NULL default '0'"
+		),
 	)
 );
 
