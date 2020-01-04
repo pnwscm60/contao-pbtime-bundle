@@ -69,6 +69,23 @@ class ModuleVerkauf extends \Contao\Module
         
         /* PART 4: VERKAUF */
 		/* Update tl_project wenn Anfrage ab editproject */
+        
+        // Für alle > Member mit Berechtigung Verkauf (Verkauf u. Admin)
+    //Alle member mit membergroup = Verkauf
+    $sql= "SELECT tl_member.id, concat(lastname,' ',firstname) as name, groups FROM tl_member ORDER by name";
+    $objMemb = $this->Database->execute($sql);
+    while ($objMemb->next()){
+        $grp = unserialize($objMemb->groups);
+        if(in_array(2,$grp)||in_array(3,$grp)){
+
+            $arrMemb[] = array
+                (
+                'id' => $objMemb->id,
+                'name' => $objMemb->name
+                );
+        }
+    }
+    $this->Template->vkfmemb = $arrMemb;
         /* ****************** */
 		if($_REQUEST['trg']=='vkf'){ 
 		//******************************
@@ -82,6 +99,7 @@ class ModuleVerkauf extends \Contao\Module
 			$start=$_REQUEST['start'];
 			$enddone=$_REQUEST['enddone'];
 			$ladress=$_REQUEST['ladress'];
+            $memberid=$_REQUEST['memberid'];
 			$status=$_REQUEST['status'];
             $start1 = strtotime($start);
             if($enddone==''){ 
@@ -89,7 +107,7 @@ class ModuleVerkauf extends \Contao\Module
             } else {
             $enddone1 = strtotime($enddone);
             }
-			$sql='UPDATE tl_project SET tstamp='.time().',kname="'.$kname.'",knr="'.$knr.'",wohnort="'.$wohnort.'",descript="'.$descript.'",start='.$start1.',enddone='.$enddone1.',ladress="'.$ladress.'" WHERE id='.$id.';';
+			$sql='UPDATE tl_project SET tstamp='.time().',kname="'.$kname.'",knr="'.$knr.'",wohnort="'.$wohnort.'",descript="'.$descript.'",start='.$start1.',enddone='.$enddone1.',ladress="'.$ladress.'", memberid='.$memberid.' WHERE id='.$id.';';
 		//echo $sql;
 		//$update=mysql_query($sql);
            $objResult = \Database::getInstance()->execute($sql);  
@@ -104,12 +122,14 @@ class ModuleVerkauf extends \Contao\Module
 			$descript=$_REQUEST['descript'];
 			$start=$_REQUEST['start'];
 			$enddone=$_REQUEST['enddone'];
+            $memberid=$_REQUEST['memberid'];
 			$ladress=$_REQUEST['ladress'];
             $start1 = strtotime($start);
-            $enddone1 = strtotime($enddone);
-			$sql='INSERT into tl_project (tstamp, knr,kname,wohnort, descript, start, enddone, ladress';
-			$sql.=') VALUES ('.time().',"'.$knr.'","'.$kname.'","'.$wohnort.'","'.$descript.'",'.$start1.','.$enddone1.',"'.$ladress.'"';
+            $enddone1 = 0;
+			$sql='INSERT into tl_project (tstamp, knr,kname,wohnort, descript, start, enddone, ladress, memberid';
+			$sql.=') VALUES ('.time().',"'.$knr.'","'.$kname.'","'.$wohnort.'","'.$descript.'",'.$start1.','.$enddone1.',"'.$ladress.'",'.$memberid;
 			$sql.=');';
+            //echo $sql;
             $objResult = \Database::getInstance()->execute($sql);  
 			$this->Template->mess = 'Neues Projekt wurde erfolgreich angelegt';
 		}
@@ -184,10 +204,9 @@ class ModuleVerkauf extends \Contao\Module
             // Bereich Edit Project
 	/**********************/
 		if($_REQUEST['todo']=='editpro'){
-		$sql='SELECT id, tstamp, knr, kname, wohnort, ladress, descript, start, enddone FROM tl_project WHERE id='.$projekt;
-		$objEProject = $this->Database->execute($sql);
-            //echo $sql;
-
+		$sql='SELECT tl_project.id, tl_project.tstamp, knr, kname, wohnort, ladress, descript, tl_project.start, tl_project.enddone, memberid FROM tl_project WHERE tl_project.id='.$projekt;
+        $objEProject = $this->Database->execute($sql);
+        
 		$arrEProject= array();
 		
 		while ($objEProject->next())
@@ -210,43 +229,44 @@ class ModuleVerkauf extends \Contao\Module
 			'enddone' => $ende,
 			'ladress' => $objEProject->ladress,
 			'status' => $objEProject->status,
-
+            'memberid' => $objEProject->memberid,
 		);
 	}
 	$this->Template->eproject = $arrEProject;
-            
+         
 	//$this->Template->nprocont = $arrCont;
 	//$this->Template->nprocust = $arrCust;
 	$this->Template->pid = $_REQUEST['id'];
 	$this->Template->scope = 'pledit';
 		}
-            
+       
     // REGIE-RAPPORT
     //********************
         if($_REQUEST['todo']=='saveregieed'){
         // Regierapport bereitstellen
         // Daten bereitstellen
-        $timearr = array();
         $tlim=count($_REQUEST['tid']);
         for($i=0;$i<$tlim;$i++){
             //Jeden Regieeintrag Zeiten auslesen > tl_timerec aktualisieren
+            //echo $i.": ";
             $tid = $_REQUEST['tid'][$i];
+            //echo $tid." ";
             $timarr[]=$tid;
             $rminutes = $_REQUEST['rminutes'][$i]*60;
             $transatz = $_REQUEST['transatz'][$i];
             $trtext = $_REQUEST['trtext'][$i];
             $trdone = mktime(0,0,0,date("m"),date("d"),date("y"));
             //höchste Regienummer für dieses Projekt holen
-            $sql='SELECT trnumber as nr from tl_timerec WHERE pid = '.$_REQUEST[proj][$i].' AND tregie = 1 UNION SELECT rmnumber as nr from tl_costrec where pid = '.$_REQUEST[proj][$i].' AND mregie = 1 UNION SELECT trnumber as nr from tl_machrec WHERE pid = '.$_REQUEST[proj][$i].' AND tregie = 1';
-            $objMaxnr = \Database::getInstance()->execute($sql);
+            $sql2='SELECT trnumber as nr from tl_timerec WHERE pid = '.$projekt.' AND tregie = 1 UNION SELECT rmnumber as nr from tl_costrec where pid = '.$projekt.' AND mregie = 1 UNION SELECT trnumber as nr from tl_machrec WHERE pid = '.$projekt.' AND tregie = 1';
+            //echo $sql2;
+            $objMaxnr = \Database::getInstance()->execute($sql2);
             $regnrt = array();
             while($objMaxnr->next()){
-                 $regnrt = $objMaxnr->nr;
+                 $regnrt[] =  $objMaxnr->nr;
             }
             $newregnr = max($regnrt)+1;
-            
             $sql='UPDATE tl_timerec SET tstamp='.time().', rminutes='.$rminutes.',transatz='.$transatz.',trtext="'.$trtext.'",trdone='.$trdone.', trnumber='.$newregnr.' WHERE id='.$tid.';';
-           
+           //echo "</br>".$sql."</br>";
             $objResult = \Database::getInstance()->execute($sql); 
         }
         $matarr = array();
@@ -257,19 +277,21 @@ class ModuleVerkauf extends \Contao\Module
             $matarr[]=$mid;
             $rmamount = $_REQUEST['rmamount'][$i];
             $rmeinheit = $_REQUEST['rmeinheit'][$i];
+            $rmansatz = $_REQUEST['rmansatz'][$i];
             $rmtext = $_REQUEST['rmtext'][$i];
             $rmkommentar = $_REQUEST['rmkommentar'][$i];
             $rmdone = mktime(0,0,0,date("m"),date("d"),date("y"));
             //höchste Regienummer für dieses Projekt holen
-            $sql='SELECT trnumber as nr from tl_timerec WHERE pid = '.$_REQUEST[proj][$i].' AND tregie = 1 UNION SELECT rmnumber as nr from tl_costrec where pid = '.$_REQUEST[proj][$i].' AND mregie = 1 UNION SELECT trnumber as nr from tl_machrec WHERE pid = '.$_REQUEST[proj][$i].' AND tregie = 1';
+            $sql='SELECT trnumber as nr from tl_timerec WHERE pid = '.$projekt.' AND tregie = 1 UNION SELECT rmnumber as nr from tl_costrec where pid = '.$projekt.' AND mregie = 1 UNION SELECT trnumber as nr from tl_machrec WHERE pid = '.$projekt.' AND tregie = 1';
             $objMaxnr = \Database::getInstance()->execute($sql);
             $regnrm = array();
             while($objMaxnr->next()){
-                 $regnrm = $objMaxnr->nr;
+                 $regnrm[] = $objMaxnr->nr;
             }
             $newregnr = max($regnrm)+1;
-            $sql='UPDATE tl_costrec SET tstamp='.time().', rmamount='.$rmamount.',rmeinheit='.$rmeinheit.',rmtext="'.$rmtext.'",rmkommentar="'.$rmkommentar.'",rmdone='.$rmdone.', rmnumber='.$newregnr.' WHERE id='.$mid.';';
-            $objResult = \Database::getInstance()->execute($sql); 
+            $sql='UPDATE tl_costrec SET tstamp='.time().', rmamount='.$rmamount.',rmeinheit='.$rmeinheit.',rmansatz='.$rmansatz.',rmtext="'.$rmtext.'",rmkommentar="'.$rmkommentar.'",rmdone='.$rmdone.', rmnumber='.$newregnr.' WHERE id='.$mid.';';
+            $objResult = \Database::getInstance()->execute($sql);
+            echo $sql;
         }
         $malim=count($_REQUEST['maid']);
         $macharr = array();    
@@ -282,7 +304,7 @@ class ModuleVerkauf extends \Contao\Module
             $trtext = $_REQUEST['mtrtext'][$i];
             $trdone = mktime(0,0,0,date("m"),date("d"),date("y"));
             //höchste Regienummer für dieses Projekt holen
-            $sql='SELECT trnumber as nr from tl_timerec WHERE pid = '.$_REQUEST[proj][$i].' AND tregie = 1 UNION SELECT rmnumber as nr from tl_costrec where pid = '.$_REQUEST[proj][$i].' AND mregie = 1 UNION SELECT trnumber as nr from tl_machrec WHERE pid = '.$_REQUEST[proj][$i].' AND tregie = 1';
+            $sql='SELECT trnumber as nr from tl_timerec WHERE pid = '.$projekt.' AND tregie = 1 UNION SELECT rmnumber as nr from tl_costrec where pid = '.$projekt.' AND mregie = 1 UNION SELECT trnumber as nr from tl_machrec WHERE pid = '.$projekt.' AND tregie = 1';
             $objMaxnr = \Database::getInstance()->execute($sql);
             
             $regnrma = array();
@@ -292,7 +314,6 @@ class ModuleVerkauf extends \Contao\Module
             $newregnr = max($regnrma)+1;
             echo "NEU:".$newregnr;
             $sql='UPDATE tl_machrec SET tstamp='.time().', rminutes='.$rminutes.',transatz='.$transatz.',trtext="'.$trtext.'",trdone='.$trdone.', trnumber='.$newregnr.' WHERE id='.$maid.';';
-           
             $objResult = \Database::getInstance()->execute($sql); 
         }
             
@@ -300,22 +321,22 @@ class ModuleVerkauf extends \Contao\Module
         }
     
     
-    // 
-            
+    //REGIELISTE 
     //Projekte bereitstellen mit Regieeinträgen
         $sql='SELECT pid from tl_costrec WHERE mregie = 1 AND rmdone = 0 UNION SELECT pid from tl_timerec WHERE tregie = 1 AND trdone=0 UNION SELECT pid from tl_machrec WHERE tregie = 1 AND trdone=0';
         $objRegie = \Database::getInstance()->execute($sql);
-        
+
         // pro gefundenes Projekt  > Projektdaten in neues Array
         while ($objRegie->next())
 		{
-            $sql='SELECT id, concat(knr,"/",kname,"/",wohnort) as title from tl_project WHERE id='.$objRegie->pid;
+            $sql='SELECT tl_project.id, concat(knr,"/",kname,"/",wohnort) as title, memberid, concat(lastname," ",firstname) as pl from tl_project, tl_member WHERE tl_project.id='.$objRegie->pid.' AND tl_member.id=memberid';
             $objRegieDet = \Database::getInstance()->execute($sql);
             while ($objRegieDet->next())
             {
             $arrProRegie[]=array(
                 'proid' => $objRegieDet->id,
                 'ptitle' => $objRegieDet->title,
+                'pl' => $objRegieDet->pl
             );
             }
         }
@@ -366,11 +387,6 @@ class ModuleVerkauf extends \Contao\Module
             elseif($objRegieMat->einheit==2){$eh = "m";}
             elseif($objRegieMat->einheit==3){$eh = "m2";}
             elseif($objRegieMat->einheit==4){$eh = "St.";}
-              if($objRegieMat->rmeinheit==5){$reh = "kg";}
-            elseif($objRegieMat->rmeinheit==1){$reh = "l";}
-            elseif($objRegieMat->rmeinheit==2){$reh = "m";}
-            elseif($objRegieMat->rmeinheit==3){$reh = "m2";}
-            elseif($objRegieMat->rmeinheit==4){$reh = "St.";}
             $arrRegieMat[]=array(
                 'mid' => $objRegieMat->id,
                 'datum' => $datmat,
@@ -382,8 +398,7 @@ class ModuleVerkauf extends \Contao\Module
                 'rmamount' => $objRegieMat->rmamount,
                 'rmtext' => $objRegieMat->rmtext,
                 'rmansatz' => $objRegieMat->rmansatz,
-                'rmkommentar' => $objRegieMat->rmkommentar,
-                'rmeinheit' => $reh
+                'rmkommentar' => $objRegieMat->rmkommentar
             );
             }
           //machinetime for this project
@@ -546,7 +561,7 @@ class ModuleVerkauf extends \Contao\Module
                     //$trdone = mktime(0,0,0,date("m"),date("d"),date("y"));
                                     
                 $sql='UPDATE tl_timerec SET tstamp='.time().', rminutes='.$rminutes.',transatz='.$transatz.',trtext="'.$trtext.'" WHERE id='.$tid.';';
-                echo $sql;
+                //echo $sql;
                 $objResult = \Database::getInstance()->execute($sql); 
                     }
                 if($_REQUEST['typ']==1){
@@ -566,7 +581,7 @@ class ModuleVerkauf extends \Contao\Module
                     //$trdone = mktime(0,0,0,date("m"),date("d"),date("y"));
                                     
                 $sql='UPDATE tl_machrec SET tstamp='.time().', rminutes='.$rminutes.',transatz='.$transatz.',trtext="'.$trtext.'" WHERE id='.$maid.';';
-                echo $sql;
+                //echo $sql;
                 $objResult = \Database::getInstance()->execute($sql); 
                 }
                 header ( 'Location: verkauf.html?trg=vkf&todo=report&proj='.$_REQUEST['proj'] );
@@ -583,7 +598,9 @@ class ModuleVerkauf extends \Contao\Module
         $this->Template->ptitle = $objProjekt->knr."/".$objProjekt->kname."/".$objProjekt->wohnort;
         $this->Template->start = date("d.m.Y",$objProjekt->start);
         $this->Template->enddone = ($objProjekt->enddone == 0) ? 'nicht abgeschlossen' : date("d.m.Y", $objProjekt->enddone);
-        
+        $sql="SELECT concat(lastname,' ',firstname) as name from tl_member, tl_project WHERE tl_member.id = memberid AND memberid = ".$objProjekt->memberid;
+        $objPl = $this->Database->execute($sql);
+        $this->Template->pl = $objPl->name;
         //Leistungsdaten holen zuerst Summen Kategorie
           $sql2="SELECT SUM(minutes) as sum, catid, tl_category.title as ctitle FROM tl_timerec, tl_jobs, tl_category WHERE tl_jobs.id=jobid and tl_category.id = tl_jobs.pid AND tl_timerec.pid=".$projekt." GROUP BY catid";
         
@@ -601,7 +618,7 @@ class ModuleVerkauf extends \Contao\Module
 		);
             
             //Jetzt Summen der Leistungen
-            $sql="SELECT SUM(minutes) as jsum, tl_jobs.pid as pid, catid, jobid, tl_jobs.title FROM tl_timerec, tl_jobs WHERE tl_jobs.id=jobid AND tl_timerec.pid=".$projekt." AND tl_jobs.pid = ".$sumtime->catid." GROUP by jobid;";
+            $sql="SELECT SUM(minutes) as jsum, tl_jobs.pid as pid, catid, jobid, tl_jobs.title, tregie FROM tl_timerec, tl_jobs WHERE tl_jobs.id=jobid AND tl_timerec.pid=".$projekt." AND tl_jobs.pid = ".$sumtime->catid." GROUP by jobid;";
             
             $objtime = $this->Database->execute($sql);
             
@@ -616,6 +633,7 @@ class ModuleVerkauf extends \Contao\Module
 			'pid' => $objtime->pid,
 			'catid' => $objtime->catid,
 			'jobid' => $objtime->jobid,
+            'tregie' => $objtime->tregie,
 		);
 		}
 		}
@@ -663,7 +681,7 @@ class ModuleVerkauf extends \Contao\Module
             while ($objmat->next())
 		{
          $dat2 = date("d.m.Y", $objmat->datum);
-        if($objmat->einheit==0) {
+                    if($objmat->einheit==0) {
                         $eh = "kg";
                } elseif($objmat->einheit==1) {
                         $eh = "l";
@@ -687,8 +705,9 @@ class ModuleVerkauf extends \Contao\Module
 		);
 		}
     // Bestehen erstellte/abgeschlossene Regierapporte?
-    $sql = 'SELECT id, trdone as done, trnumber as nr, trfinal as finale, typ, tstamp from tl_timerec WHERE tl_timerec.pid='.$_REQUEST['proj'].' AND trdone!="0" UNION SELECT id, rmdone as done, rmnumber as nr, rmfinal as finale, typ, tstamp from tl_costrec WHERE tl_costrec.pid='.$_REQUEST['proj'].' AND rmdone!="0" UNION SELECT id, trdone as done, trnumber as nr, trfinal as finale, typ, tstamp from tl_machrec WHERE tl_machrec.pid='.$_REQUEST['proj'].' AND trdone!="0"' ;    
-    echo $sql;
+    //$sql = 'SELECT tl_timerec.id, trdone as done, trnumber as nr, trfinal as finale, tl_timerec.typ, tl_timerec.tstamp, tl_category.title as ctitle, tl_jobs.title as jtitle from tl_timerec, tl_category, tl_jobs WHERE tl_timerec.catid=tl_category.id AND tl_timerec.jobid=tl_jobs.id AND tl_timerec.pid='.$_REQUEST['proj'].' AND trdone!="0" UNION SELECT id, rmdone as done, rmnumber as nr, rmfinal as finale, typ, tstamp from tl_costrec WHERE tl_costrec.pid='.$_REQUEST['proj'].' AND rmdone!="0" UNION SELECT id, trdone as done, trnumber as nr, trfinal as finale, typ, tstamp from tl_machrec WHERE tl_machrec.pid='.$_REQUEST['proj'].' AND trdone!="0" ORDER by nr' ;    
+    $sql = 'SELECT tl_timerec.id, tl_timerec.trdone as done, tl_timerec.trnumber as nr, tl_timerec.trfinal as finale, tl_timerec.typ, tl_timerec.tstamp, tl_category.title as ctitle, tl_jobs.title as jtitle from tl_timerec, tl_category, tl_jobs WHERE tl_timerec.catid=tl_category.id AND tl_timerec.jobid=tl_jobs.id AND tl_timerec.pid='.$_REQUEST['proj'].' AND tl_timerec.trdone!="0" UNION SELECT tl_costrec.id, rmdone as done, rmnumber as nr, rmfinal as finale, tl_costrec.typ, tl_costrec.tstamp, tl_costrec.title as jtitle, tl_costrec.amount as ctitle from tl_costrec WHERE tl_costrec.pid='.$_REQUEST['proj'].' AND rmdone!="0" UNION SELECT tl_machrec.id, tl_machrec.trdone as done, tl_machrec.trnumber as nr, tl_machrec.trfinal as finale, tl_machrec.typ, tl_machrec.tstamp, tl_category.title as ctitle, tl_jobs.title as jtitle from tl_machrec, tl_category, tl_jobs WHERE tl_machrec.pid='.$_REQUEST['proj'].' AND tl_machrec.trdone!="0" AND tl_machrec.catid=tl_category.id AND tl_machrec.jobid=tl_jobs.id ORDER by nr';
+        //echo $sql;
     $objRegierap = $this->Database->execute($sql);
         while($objRegierap->next()){
             switch($objRegierap->typ){
@@ -717,6 +736,8 @@ class ModuleVerkauf extends \Contao\Module
                 'typ' => $typ,
                 'typnr' => $objRegierap->typ,
                 'marker' => $objRegierap->marker,
+                'ctitle' => $objRegierap->ctitle,
+                'jtitle' => $objRegierap->jtitle
             );
         }
     $this->Template->regrap = $arrRegierap;    
@@ -729,12 +750,10 @@ class ModuleVerkauf extends \Contao\Module
     $this->Template->total = $total;    
     $this->Template->totalmach = $totalmach;        
     }
-   
 // End Bereich Verkauf
 		//**************************
     // Immer holen > dailydaten, zuerst TIME
-    $sql='SELECT concat(knr,"/", kname,"/", wohnort) as ptitle, tl_jobs.title as jtitle, tl_category.title as ctitle, tl_timerec.minutes, tl_timerec.datum from tl_timerec, tl_jobs, tl_category, tl_project WHERE tl_timerec.memberid = '.$userid.' AND tl_timerec.catid = tl_category.id AND tl_timerec.jobid = tl_jobs.id AND tl_project.id = tl_timerec.pid AND tl_timerec.datum = '.strtotime("today");
-        
+    $sql='SELECT concat(knr,"/", kname,"/", wohnort) as ptitle, tl_jobs.title as jtitle, tl_category.title as ctitle, tl_timerec.minutes, tl_timerec.datum from tl_timerec, tl_jobs, tl_category, tl_project WHERE tl_timerec.memberid = '.$userid.' AND tl_timerec.catid = tl_category.id AND tl_timerec.jobid = tl_jobs.id AND tl_project.id = tl_timerec.pid AND tl_timerec.datum = '.strtotime("today"); 
         
         $objdailyt = $this->Database->execute($sql);
         $arrdailyt = array();
@@ -748,9 +767,7 @@ class ModuleVerkauf extends \Contao\Module
     }
      // Immer holen > dailydaten, SUM TIME
     $sql='SELECT sum(tl_timerec.minutes) as daily from tl_timerec, tl_project WHERE tl_timerec.memberid = '.$userid.' AND tl_project.id = tl_timerec.pid AND tl_timerec.datum = '.strtotime("today");
-        
-        $objdailyt = $this->Database->execute($sql); 
-    
+    $objdailyt = $this->Database->execute($sql); 
     $this->Template->dailystu = $arrdailyt;
     $this->Template->daily = $objdailyt->daily/60;
     // und dito MAT
