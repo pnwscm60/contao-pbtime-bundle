@@ -75,7 +75,7 @@ var projects = [
             data-proj="<?php echo $this->projekt?>">NEU</button>
         </div>
 
-<div style='margin-bottom:1em;clear:both;'>Für Projekt: <?php echo $this->aktprojekt?></div>
+<div style='margin-bottom:1em;clear:both;'>Für Projekt: <?php echo $this->aktprojekt?> [<?php echo $this->aktprojektpl?>]</div>
 </div>
 <?php endif;?>
        
@@ -91,7 +91,7 @@ var projects = [
  <?php if ($this->summe): foreach ($this->summe as $sum): ?>
  	<div class="time header">
     <div class='prolist'>
-   	 	<div class='dat'>Total</div>
+   	 	<div class='dat leftind'>Total</div>
     	 	<div class='times'> <?php echo $sum['summe']/60?></div>
     	<div class='timetitle'> <?php echo $sum['ctitle']?></div>
 		</div></div>
@@ -108,11 +108,11 @@ var projects = [
 				<?php endif;endif;?>
 		</div>
     	<div class='times'> <?php echo $tim['zeit']/60?></div>
-    	<div class='timetitle'> <?php echo $tim['jobtitle']?> [<?php echo $tim['mname']?>]</div>
+    	<div class='timetitle'> <?php echo $tim['jobtitle']?> <?php echo $tim['descript']!='' ? '[<span class="small">'.$tim['descript'].'</span>]' : ''?></div>
      <?php // edit und delete dataset ?>
     <div class="links2">
-        <img class="edittime" src='files/images/edit.png' width="22" data-edittime="proj=<?php echo $this->projekt?>&id=<?php echo $tim['id']?>&pid=<?php echo $tim['pid']?>&trg=tlist"> 
-        <a href="erfassen.html?trg=tlist&todo=deltime&proj=<?php echo $this->projekt?>&id=<?php echo $tim['id']?>" class="confirmdeltime" ><img src='files/images/trash.png' width="22"></a>
+        <img class="edittime" src='files/images/edit.svg' width="22" data-edittime="proj=<?php echo $this->projekt?>&id=<?php echo $tim['id']?>&pid=<?php echo $tim['pid']?>&trg=tlist"> 
+        <a href="erfassen.html?trg=tlist&todo=deltime&proj=<?php echo $this->projekt?>&id=<?php echo $tim['id']?>" class="confirmdeltime" ><img src='files/images/del.svg' width="22"></a>
         </div>
     </div>
  
@@ -172,28 +172,7 @@ var projects = [
         <div class="jobchoosen">Leistung gewählt: <input type="text" class="jtitle" value="<?php echo (isset($this->job)) ? $this->job : '' ?><?php if (strcmp($njob['jtitle'], $this->cat)===0){ echo $njob['jtitle'];}?>">
         </div>
         <input type="hidden" class="jid" name="jid" value="<?php echo (isset($this->jobid)) ? $this->jobid : '' ?><?php if (strcmp($njob['jtitle'], $this->cat)===0){ echo $njob['jid'];} ?>">
-        <div class="formgroup datumform">
-            <label for="datepicker" class="datumform">Datum</label>
-            <input type="text" class="form-control datumform" name="datum" id="datepicker" readonly="readonly"
-                   value="<?php echo $this->dat1 ? $this->dat1 : date("d.m.Y")?>">
-        </div>
-        <div class="formgroup amountform" style="">
-	        <label for="zeit" class="amountform">Dauer Std</label>
-            <span class="hint--top hint--rounded" aria-label="Standard-h/Tag: <?php echo $this->dayhours;?>"><input type="text" name="zeit" id="arbzeit1" class="amountform form-control zeit" value="<?php echo $this->minutes/60?>" required>
-            </span>
-        </div>
-        <?php if($this->projekt!=5 && $this->projekt!=7 && $this->projekt!=14):?>
-	    <div class="formgroup tag" style="float:left;margin: 0 0.5em; width:24px">
-	    <div>Regie</div>
-	    <input type="checkbox" name="regie" id="checkbox-1" class="form-control regular-checkbox" <?php echo ($this->regie == '1') ? 'checked' : ''?> value="1"><label for="checkbox-1"></label>
-        </div>
-        <?php endif;?>
-        <div style="float:right; width:84px;margin-top:1.75em;">
-            <div class="btn minbutton plus15" style="">+15'</div>
-            <div class="btn minbutton min15" style="">-15'</div>
-        </div>
-        
-        <div style="clear:left;">
+         <div style="clear:left;margin-top:5px;">
 	        <div style="clear:left;width:100%;float:left;">
 	            <div class="btn timebutton">1</div>
 	            <div class="btn timebutton">2</div>
@@ -206,7 +185,27 @@ var projects = [
 	            <div class="btn timebutton">9</div>
 	            <div class="btn timebutton">10</div>
             </div>
-	   </div>    
+	   </div>   
+                <div class="formgroup datumform">
+            <label for="datepicker" class="datumform">Datum</label>
+            <input type="text" class="form-control datumform" name="datum" id="datepicker" readonly="readonly"
+                   value="<?php echo $this->dat1 ? $this->dat1 : date("d.m.Y")?>">
+        </div>
+        <div class="formgroup amountform" style="">
+	        <label for="zeit" class="amountform">Dauer Std</label>
+            <span class="hint--top hint--rounded" aria-label="Standard-h/Tag: <?php echo $this->dayhours;?>"><input type="text" inputmode="decimal" name="zeit" id="arbzeit1" class="amountform form-control zeit" value="<?php echo $this->minutes ? $this->minutes/60 : ''?>" required>
+            </span>
+        </div>
+        <?php if($this->projekt!=5 && $this->projekt!=7 && $this->projekt!=14):?>
+	    <div class="formgroup tag" style="float:left;margin: 0 0.5em; width:24px">
+	    <div>Regie</div>
+	    <input type="checkbox" name="regie" id="checkbox-1" class="form-control regular-checkbox" <?php echo ($this->regie == '1') ? 'checked' : ''?> value="1"><label for="checkbox-1"></label>
+        </div>
+        <?php endif;?>
+        <div style="float:right; width:84px;margin-top:5px;">
+            <div class="btn minbutton plus15" style="">+15'</div>
+            <div class="btn minbutton min15" style="">-15'</div>
+        </div>   
         <div class="formgroup grundform comform" comform style="clear:both;">
 	        <label for="descript" class="grundform">Kommentar</label>
             <span class="hint--top hint--rounded" aria-label="Bei Regiearbeit Details angeben">
@@ -267,11 +266,11 @@ var projects = [
 				<?php endif;endif;?>
             </div>
     	<div class='amount'> <?php echo $tim['amount']?> <?php echo $tim['einheit']?></div>
-        <div class='material'> <?php echo $tim['title']?></div>
+        <div class='material'> <?php echo $tim['title']?>  <?php echo $tim['descript']!='' ? '[<span class="small">'.$tim['descript'].'</span>]' : ''?></div>
      <?php // edit und delete dataset ?>
     <div class="links2">
-        <img class="editmat" src='files/images/edit.png' width="22" data-editmat="proj=<?php echo $this->projekt?>&id=<?php echo $tim['id']?>&pid=<?php echo $tim['pid']?>&trg=vlist"> 
-        <a href="erfassen.html?trg=vlist&todo=delmat&proj=<?php echo $this->projekt?>&id=<?php echo $tim['id']?>" class="confirm-delmat" ><img src='files/images/trash.png' width="22"></a>
+        <img class="editmat" src='files/images/edit.svg' width="22" data-editmat="proj=<?php echo $this->projekt?>&id=<?php echo $tim['id']?>&pid=<?php echo $tim['pid']?>&trg=vlist"> 
+        <a href="erfassen.html?trg=vlist&todo=delmat&proj=<?php echo $this->projekt?>&id=<?php echo $tim['id']?>" class="confirm-delmat" ><img src='files/images/del.svg' width="22"></a>
         </div>   
     </div>
   </div>
@@ -347,7 +346,7 @@ var projects = [
  <?php if ($this->summach): foreach ($this->summach as $msum): ?>
  	<div class="time header">
     <div class='prolist'>
-   	 	<div class='dat' style="width:5em;">Total</div>
+   	 	<div class='dat leftind' style="width:5em;">Total</div>
     	 	<div class='times'> <?php echo $msum['summe']/60?></div>
     	<div class='timetitle'> <?php echo $msum['ctitle']?></div>
 		</div></div>
@@ -365,11 +364,11 @@ var projects = [
 				<?php endif;endif;?>
 		</div>
     	<div class='times'> <?php echo $mtim['zeit']/60?></div>
-    	<div class='timetitle'> <?php echo $mtim['jobtitle']?></div>
+    	<div class='timetitle'> <?php echo $mtim['jobtitle']?>  <?php echo $mtim['descript']!='' ? '[<span class="small">'.$mtim['descript'].'</span>]' : ''?></div>
      <?php // edit und delete dataset ?>
     <div class="links2">
-        <img class="editmach" src='files/images/edit.png' width="22" data-editmach="proj=<?php echo $this->projekt?>&id=<?php echo $mtim['id']?>&pid=<?php echo $mtim['pid']?>&trg=mlist"> 
-        <a href="erfassen.html?trg=mlist&todo=delmach&proj=<?php echo $this->projekt?>&id=<?php echo $mtim['id']?>" class="confirmdelmach" ><img src='files/images/trash.png' width="22"></a>
+        <img class="editmach" src='files/images/edit.svg' width="22" data-editmach="proj=<?php echo $this->projekt?>&id=<?php echo $mtim['id']?>&pid=<?php echo $mtim['pid']?>&trg=mlist"> 
+        <a href="erfassen.html?trg=mlist&todo=delmach&proj=<?php echo $this->projekt?>&id=<?php echo $mtim['id']?>" class="confirmdelmach" ><img src='files/images/del.svg' width="22"></a>
         </div>
     </div>
  
