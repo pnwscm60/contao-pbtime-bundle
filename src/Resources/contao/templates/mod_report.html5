@@ -24,8 +24,7 @@
     <div class="prolist">
     	<div class='dat'> <?php echo $tim['datum']?></div>
     	<div class='times'> <?php echo ($tim['zeit'])/60?></div>
-    	<div class='timetitle'> <?php echo $tim['jobtitle']?></div>
-        <?php echo ($tim['descript']!='') ? '<div class="timedescript">'.$tim["descript"].'</div>' : '' ?>
+    	<div class='timetitle'> <?php echo $tim['jobtitle']?><?php echo ($tim['descript']!='') ? ' [<span class="small">'.$tim["descript"].'</span>]' : '' ?></div>
         <div class='times' style="float:right;"> <?php echo $tim['nkurz']?></div>
         
     </div>
@@ -35,16 +34,15 @@
     <div style="height:5px;clear:both;">&nbsp;</div>
   <?php endforeach; endif; //Kategorie ?>
 </div>
-<h2 style="margin-top:1em;">Material</h2>
+<h2 style="margin-top:1em;">Verbrauchsmaterial</h2>
  <div style="margin-top:1em;">
      <?php if ($this->repmat): foreach ($this->repmat as $rmat): ?>
      <div class="time">
     <div class='prolist'>
     	<div class='dat'> <?php echo $rmat['datum']?></div>
-    	<div class='times' style="text-align: left;"> <?php echo $rmat['amount']?> <?php echo $rmat['einheit']?></div>
-    	<div class='timetitle'> <?php echo $rmat['mattitle']?></div>
+    	<div class='times w50' style="text-align: left;"> <?php echo $rmat['amount']?> <?php echo $rmat['einheit']?></div>
+    	<div class='timetitle'> <?php echo $rmat['mattitle']?><?php echo ($rmat['descript']!='') ? ' [<span class="small">'.$rmat["descript"].'</span>]' : '' ?></div>
         <div class='times' style="float:right;"> <?php echo $rmat['nkurz']?></div>
-        <?php echo ($rmat['descript']!='') ? '<div class="timedescript">'.$rmat["descript"].'</div>' : '' ?>
     </div>
   </div>
       <?php endforeach; endif; //Ende Mat ?>
