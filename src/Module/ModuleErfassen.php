@@ -64,7 +64,6 @@ class ModuleErfassen extends \Contao\Module
 		}
         $this->Template->filter = $filter;
         
-        
         $this->import('Database');
         $sql ="SELECT id, concat(knr,'/',kname,'/',wohnort) as title from tl_project ".$filter." ORDER by title;";
         //echo $sql;
@@ -88,12 +87,6 @@ class ModuleErfassen extends \Contao\Module
         $moho = explode("|",$objMonhour->dailyhours);
         $dayhour = $moho[$thismo];
         $this->Template->dayhours = $dayhour;
-        //echo $mohour." ";
-        //echo $objMonhour->monthhours;
-        //echo $objMonhour->dailyhours;
-        
-        /* PART 1: MANAGING PROJECTS */
-        /* PART 2: BEREICH ADMIN */
 
         /* PART 3: MANAGING ZEITEN + MATERIAL */
         // Start Beginn Timelist
@@ -168,10 +161,12 @@ class ModuleErfassen extends \Contao\Module
 		/* Liste erstellen -> nur Einträge dieses users*/
         
         // Titel des aktuellen Projekts ausliefern
-        $sql0 = 'SELECT id, concat(knr,"/", kname,"/", wohnort) as title from tl_project WHERE id = '. $projekt;
+        $sql0 = 'SELECT tl_project.id, concat(knr,"/", kname,"/", wohnort) as title, memberid, concat(lastname," ", firstname) as pl from tl_project, tl_member WHERE tl_member.id=memberid AND tl_project.id = '. $projekt;
         $aktprojekt = $this->Database->execute($sql0);
 		$this->Template->aktprojekt = $aktprojekt->title;
         $this->Template->aktprojektid = $aktprojekt->id;
+        $this->Template->aktprojektpl = $aktprojekt->pl;   
+           
 		if($projekt==14){
             $sql2="SELECT SUM(minutes) as sum, catid, tl_category.title as ctitle FROM tl_timerec, tl_jobs, tl_category WHERE tl_jobs.id=jobid and tl_category.id = tl_jobs.pid AND tl_timerec.pid=".$projekt." GROUP BY catid";    
         } else {
@@ -242,9 +237,6 @@ class ModuleErfassen extends \Contao\Module
         $cattimeedit = $objResult->catid;
     }
     
-     
-    
-        
     // Machlist
     if($trg=='mlist'){
 		$this->Template->doit = 'maschinelist';     
@@ -302,10 +294,11 @@ class ModuleErfassen extends \Contao\Module
 		/* Liste erstellen -> nur Einträge dieses users*/
         
         // Titel des aktuellen Projekts ausliefern
-        $sql0 = 'SELECT id, concat(knr,"/", kname,"/", wohnort) as title from tl_project WHERE id = '. $projekt;
+        $sql0 = 'SELECT tl_project.id, concat(knr,"/", kname,"/", wohnort) as title, memberid, concat(lastname," ", firstname) as pl from tl_project, tl_member WHERE tl_member.id=memberid AND tl_project.id = '. $projekt;
         $aktprojekt = $this->Database->execute($sql0);
 		$this->Template->aktprojekt = $aktprojekt->title;
         $this->Template->aktprojektid = $aktprojekt->id;
+        $this->Template->aktprojektpl = $aktprojekt->pl; 
 		
         $sql2="SELECT SUM(minutes) as sum, catid, tl_category.title as ctitle FROM tl_machrec, tl_jobs, tl_category WHERE tl_jobs.id=jobid and tl_category.id = tl_jobs.pid AND tl_machrec.pid=".$projekt." AND memberid = ".$userid." GROUP BY catid";
            //echo $sql2;
@@ -435,10 +428,11 @@ class ModuleErfassen extends \Contao\Module
 		/* Liste erstellen -> nur Einträge dieses users*/
         
         // Titel des aktuellen Projekts ausliefern
-        $sql0 = 'SELECT id, concat(knr,"/", kname,"/", wohnort) as title from tl_project WHERE id = '. $projekt;
+           $sql0 = 'SELECT tl_project.id, concat(knr,"/", kname,"/", wohnort) as title, memberid, concat(lastname," ", firstname) as pl from tl_project, tl_member WHERE tl_member.id=memberid AND tl_project.id = '. $projekt;
         $aktprojekt = $this->Database->execute($sql0);
 		$this->Template->aktprojekt = $aktprojekt->title;
         $this->Template->aktprojektid = $aktprojekt->id;
+        $this->Template->aktprojektpl = $aktprojekt->pl; 
 		
         $sql = "SELECT * FROM tl_costrec WHERE tl_costrec.pid=".$projekt." AND memberid = ".$userid." ORDER BY datum ASC;";
         // Falls nicht nur eigene Jobs zeigen > Feld ergänzen kürzel
@@ -473,7 +467,6 @@ class ModuleErfassen extends \Contao\Module
 	// Ende Matlist
     if($_REQUEST['todo']=='editmat'){ //Daten für editmat bereitstellen
         $sql='SELECT *, tl_costrec.id as mid, tl_costrec.pid as pro, tl_costrec.title as mtit from tl_costrec WHERE tl_costrec.id='.$_REQUEST['id'];
-        
         $objResult = \Database::getInstance()->execute($sql); 
         
         $this->Template->mid = $objResult->mid;
@@ -488,7 +481,6 @@ class ModuleErfassen extends \Contao\Module
         $this->Template->regie = $objResult->mregie;
         $this->Template->editmat = 'editmat';
     }       
-        
         
 	// *** BEREICH KATEGORIEWECHSEL / JOBS
 	// **********************
@@ -611,7 +603,7 @@ class ModuleErfassen extends \Contao\Module
                 'nkurz' => $objMarb->nkurz,
                 );
             }
-            $this->Template->member = $arrMarb;      
+    $this->Template->member = $arrMarb;      
     // Immer holen > dailydaten, zuerst TIME
     $sql='SELECT concat(knr,"/", kname,"/", wohnort) as ptitle, tl_jobs.title as jtitle, tl_category.title as ctitle, tl_timerec.minutes, tl_timerec.datum from tl_timerec, tl_jobs, tl_category, tl_project WHERE tl_timerec.memberid = '.$userid.' AND tl_timerec.catid = tl_category.id AND tl_timerec.jobid = tl_jobs.id AND tl_project.id = tl_timerec.pid AND tl_timerec.datum = '.strtotime("today");
         
