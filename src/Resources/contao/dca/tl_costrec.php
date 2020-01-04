@@ -210,7 +210,7 @@ $GLOBALS['TL_DCA']['tl_costrec'] = array
 			'flag'                    => 11,
 			'search'                  => true,
 			'eval'                    => array('mandatory'=>false, 'maxlength'=>8, 'tl_class'=>'w50'),
-			'sql'                     => "int(6) NOT NULL default '0'"
+			'sql'                     => "double(5,2) NOT NULL default '0.00'"
 		),
         'rmkommentar' => array
 		(
