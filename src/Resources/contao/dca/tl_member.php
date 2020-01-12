@@ -1,12 +1,10 @@
 <?php
- /**
-DCA für pbtime
-© 2017 Markus Schenker, Phi Network
- */
-/**
- * Ergänzung tl_member
- * 
- */
+/*
+*	DCA für pbtime
+*	© 2017 Markus Schenker, Phi Network
+* Ergänzung tl_member
+* 
+*/
 
 $GLOBALS['TL_DCA']['tl_member']['palettes']['default'] = str_replace 
 ( 
@@ -58,17 +56,7 @@ $GLOBALS['TL_DCA']['tl_member']['fields']['nkurz'] = array
 			'eval'                    => array('mandatory'=>true, 'unique'=>true, 'maxlength'=>10, 'tl_class'=>'w50'),
 			'sql'                     => "varchar(10) NOT NULL default ''"
 );
-$GLOBALS['TL_DCA']['tl_member']['fields']['nkurz'] = array
-(
-	'label'                   => &$GLOBALS['TL_LANG']['tl_member']['nkurz'],
-			'inputType'               => 'text',
-			'exclude'                 => true,
-			'sorting'                 => true,
-			'flag'                    => 1,
-			'search'                  => true,
-			'eval'                    => array('mandatory'=>true, 'unique'=>true, 'maxlength'=>10, 'tl_class'=>'w50'),
-			'sql'                     => "varchar(10) NOT NULL default ''"
-);
+
 $GLOBALS['TL_DCA']['tl_member']['fields']['minutesoll'] = array 
 		(
 			'label'     => &$GLOBALS['TL_LANG']['tl_project']['minutesoll'],
