@@ -198,7 +198,7 @@ $GLOBALS['TL_DCA']['tl_project'] = array
 		),
 	)
 );
-
+/*
 class tl_project extends Backend {
 
 public function AllAdress() 
@@ -227,3 +227,4 @@ public function AllCustomer()
         return $arrReturn; 
     }
 }
+*/
