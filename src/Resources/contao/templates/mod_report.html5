@@ -14,7 +14,7 @@
  <?php if ($this->rsumme): foreach ($this->rsumme as $sum): ?>
  	<div class="time header">
     <div class='prolist'>
-   	 	<div class='dat'>Total Std.</div>
+   	 	<div class='dat leftind'>Total Std.</div>
     	 	<div class='times'> <?php echo ($sum['summe'])/60?></div>
     	<div class='timetitle'> <?php echo $sum['ctitle']?></div>
 		</div></div>
