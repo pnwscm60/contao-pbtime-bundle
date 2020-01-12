@@ -1,11 +1,9 @@
 <?php
-/**
-DCA für machrec for pbtime
-© 2016 Markus Schenker, Phi Network
- */
-/**
- * Table tl_machrec for pbtime
- */
+/*
+*   DCA für machrec for pbtime
+*   © 2016 Markus Schenker, Phi Network
+* Table tl_machrec for pbtime
+*/
 $GLOBALS['TL_DCA']['tl_machrec'] = array
 (
 	// Config
@@ -237,21 +235,21 @@ $GLOBALS['TL_DCA']['tl_machrec'] = array
 		),
 	)
 );
-/*Classes*/
+/*Classes
 class tl_machrec extends Backend {
 
-/*Backend user object */
-/*public function __construct()
+Backend user object 
+public function __construct()
 	{
 		parent::__construct();
 		$this->import('BackendUser', 'User');
 	}
-*/
-    /**
+
+  
      * Generate a song row and return it as HTML string
      * @param array
      * @return string
-     */
+     
 public function generateTimeRow($arrRow)
     {
         return '<div><div style="float:left;width:75px;">' . $arrRow['datum'] . '</div><div style="padding-left:3px;float:left;width:30px;">' . $arrRow['minutes'] . '</div><div style="padding-left:3px;float:left;">' . $arrRow['descript'] . '</div></div>';
@@ -286,3 +284,4 @@ public function generateAlias($varValue, DataContainer $dc)
 		return $varValue;
 	}
 }
+*/
