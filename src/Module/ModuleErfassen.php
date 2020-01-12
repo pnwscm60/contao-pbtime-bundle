@@ -456,6 +456,7 @@ class ModuleErfassen extends \Contao\Module
             'amount' => $objmat->amount,
 			'descript' => $objmat->descript,
 			'pid' => $objmat->pid,
+            'mregie' => $objmat->mregie,
             'rmdone' => $objmat->rmdone,
             'rmfinal' => $objmat->rmfinal,
 		);
