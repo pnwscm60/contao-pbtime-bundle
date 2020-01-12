@@ -42,7 +42,7 @@ class ModuleProfil extends \Contao\Module
                     );
                 }
           $this->Template->mcat = $arrmCat;  
-          //Daten einzelner Marb nur bereitstellen, falls angefordert:
+          //Daten einzelner Marb bereitstellen:
           $sql = 'select lastname, firstname, email, nkurz, cpref, zeitmodell,groups from tl_member where id='.$userid;
           $objMar = $this->Database->execute($sql);
           $groups = deserialize($objMar->groups);
@@ -299,15 +299,19 @@ class ModuleProfil extends \Contao\Module
         if($_REQUEST['fi']){
             if($_REQUEST['fi']<10){
                 $fi="0".$_REQUEST['fi'];
+                $jahr=$_REQUEST['year'];
             } else {
                 $fi=$_REQUEST['fi'];
+                $jahr=$_REQUEST['year'];
             }
         } else { // kein Filter gewählt > aktueller Monat
             $fi=date("m");
+            $jahr = date("Y");
         }
-        $jahr = date("Y");
+        
         $sql = "SELECT datum, sum(minutes) as daymin FROM tl_timerec WHERE DATE_FORMAT(FROM_UNIXTIME(`datum`), '%m') LIKE '".$fi."' AND DATE_FORMAT(FROM_UNIXTIME(`datum`), '%Y') LIKE '".$jahr."' AND memberid=".$userid." GROUP BY datum;";
         $objSumday = \Database::getInstance()->execute($sql);
+        
         $i=0;
         while ($objSumday->next())
         
@@ -337,6 +341,8 @@ class ModuleProfil extends \Contao\Module
         $this->Template->dayminutes = $arrdm;
         $this->Template->showday = $arrshowday;
        
+        
+        
 //Ende Profil
 	}
 }
