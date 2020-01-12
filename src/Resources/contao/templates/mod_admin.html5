@@ -68,7 +68,7 @@ $nkurz = $objUser->nkurz;
      <?php if($allkat['ctyp']==0):?>
     <div class="time header">
     <div class='prolist'>
-   	 	<div class='dat'>Bereich</div>
+   	 	<div class='dat leftind'>Bereich</div>
     	 	<div class='timetitle'> <?php echo $allkat['ctitle']?></div>
 		</div></div>
     <?php if($this->alljob): foreach ($this->alljob as $alljob):?>
@@ -263,16 +263,18 @@ $nkurz = $objUser->nkurz;
     <?php endif;?>
     ">
     <h1>Mitarbeiter</h1> 
-    <?php?>
-        <div style="width:350px;float:left;">
+        <div class="mablockleft" style="">
+        <div style="margin-top:20px;">&nbsp;</div>
+        <h2>Personalien</h2>
         <form action="admin.html" id="editmember" class="protimeform" method="post" enctype="application/x-www-form-urlencoded">
-        <input type="hidden" name="todo"
-        <?php if($this->todo=='editmarb'):                                        
-        echo 'value="editmembersave">';?>
+        <input type="hidden" name="todo" 
+        <?php if($this->todo=='editmarb'):
+        echo 'value="editmembersave"';?>
         <?php else: 
-        echo 'value="newmembersave">';?>
+        echo 'value="newmembersave"';?>
         <?php endif; ?>
-        
+        >
+        <div></div>
         <input type="hidden" name="mid" value="<?php echo $this->mid?>">
         <input type="hidden" name="trg" value="admin">
         <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
@@ -293,11 +295,6 @@ $nkurz = $objUser->nkurz;
             <label for="email" class="grundform">E-Mail</label>
             <input type="text" name="email" id="" class="form-control grundform" value="<?php echo $this->email?>">
         </div>
-         <!--   
-         <div class="grundform">
-            <label for="minutesoll" class="grundform">Jahresarbeitszeit*</label>
-            <input type="text" name="minutesoll" id="" class="grundform" value="<?php echo $this->minutesoll?>">
-        </div>-->
          <div class="tag" style="float:left;;width:600px;">
     <div style="float:left;width:80px;text-align:left;margin-right:1em;">Berechtigungen</div>
 	<div style="float:left;width:70px;"><div>Mitarbeiter</div>
@@ -308,17 +305,17 @@ $nkurz = $objUser->nkurz;
     <div style="float:left;width:70px;"><div>Administrator</div>
     <input style="float:left;" type="checkbox" name="groups[]" id="checkbox-3" class="regular-checkbox" <?php echo in_array(2, $this->groups) ? 'checked' : ''?> value="2"><label for="checkbox-3"></label></div>
 </div>
-        <div class="selectform2" style="clear:both;">
+        <div class="selectform" style="clear:both;">
             <label for="zeitmodell" class="selectform">Zeitmodell</label>
-            <select name="zeitmodell" class="selectform">
+            <select name="zeitmodell" class="selectform form-control">
             <option value="0">Zeitmodell auswählen</option>
  			<option value="1" <?php if (!(strcmp("1", $this->zeitmodell))) {echo "selected=\"selected\"";} ?>>Mo-Fr</option>
             <option value="2" <?php if (!(strcmp("2", $this->zeitmodell))) {echo "selected=\"selected\"";} ?>>Di-Sa</option>
  		</select>
         </div>
-        <div class="selectform2">
-            <label for="cpref" class=" selectform">Standardkategorie</label>
-            <select name="cpref" class="selectform">
+        <div class="selectform">
+            <label for="cpref" class="selectform">Standardkategorie</label>
+            <select name="cpref" class="selectform form-control">
             <option value="0">Standardkategorie wählen</option>
  			<?php if($this->mcat): foreach ($this->mcat as $mcat):?>
  			<option value="<?php echo $mcat['cid']?>"  <?php if (!(strcmp($this->cpref, $mcat['cid']))) {echo "selected=\"selected\"";} ?>><?php echo $mcat['ctitle']?></option>
@@ -332,6 +329,7 @@ $nkurz = $objUser->nkurz;
         </div>
         </form>
     </div>
+    
     <?php //Daten bei Erstaufruf für aktuelles Jahr anzeigen?>
     <div><div style="float:left;margin:5px 0.6em 0 0;">Daten für </div><div class="selectform"><select id="yearselect" 
         <?php for($j=1;$j<=12;$j++): ?>
@@ -421,7 +419,7 @@ $nkurz = $objUser->nkurz;
 	<?php endfor;?>
 	>
 	<option value="ljahr"><?php echo $this->ljahr?></option><option selected value="ajahr"><?php echo $this->ajahr?></option><option value="njahr"><?php echo $this->njahr?></option></select></div></div>
-    <div style="width:200px;float:left;">
+<div class="mablockmidleft">
     <form action="admin.html" name="sollhours" id="sollhours" class="protimeform" method="post" enctype="application/x-www-form-urlencoded" style="width:350px;float:left;">
     <h2 id="titelsoll">Sollstunden <?php echo $this->ajahr?></h2>    
     <div style="width:190px;float:left;">
@@ -429,21 +427,18 @@ $nkurz = $objUser->nkurz;
             Berechnet: <?php echo $this->sumSolla?> h (100 %)
         </div></div>
 
-    <div style="width:200px;float:left;margin-top:1em;">
+    <div style="">
         <?php for($i=0;$i<12;$i++): ?>
          <div class="grundform">
-            <div style="width:55px;margin:8px 0.5em 0 0;text-align:right;float:left;"><?php echo $this->moname[$i];?></div>
-
+         <div style="width:55px;margin:8px 0.5em 0 0;text-align:right;float:left;"><?php echo $this->moname[$i];?></div>
         <div class="profilstd soll<?php echo $i?>" id="soll<?php echo $i?>" style="width:33px;margin:8px 0 0 0;float:left;">[<? echo number_format($this->sumMoll[$i+1]);?>]</div>
-        <input style="width:50px;" id="insoll<?php echo $i?>" readonly  type="text" class="grundform" value="<?php echo $this->sumMoll[$i+1] * $this->atag ?>">
+        <input style="" id="insoll<?php echo $i?>" readonly  type="text" class="form-control grundform masoll" value="<?php echo $this->sumMoll[$i+1] * $this->atag ?>">
         </div>
 		<?php endfor; ?>
 		</div>
-    
     </form>
     </div>
-    <?php echo $msoll['monthhours'][0];?>
-    <div style="width:250px;float:left;">
+    <div class="mablockmidright">
 		<div id="selectedjahr" style="display:none">ajahr</div>
 		<div id="aajahr" style="display:none"><?php echo $this->sumSolla?> </div>
 		<div id="nnjahr" style="display:none"><?php echo $this->sumSolln?></div>
@@ -452,7 +447,7 @@ $nkurz = $objUser->nkurz;
         <div style="width:190px;float:left;">
 			<div class="grundform" id="infoist">
             Alle Daten gemäss Eintrag in der DB
-        </div>
+            </div>
 		</div>
         <form action="admin.html" name = "hours" id="hours" class="protimeform" method="post" enctype="application/x-www-form-urlencoded">
         <input type="hidden" name="todo" value="saveupdatehours">
@@ -460,75 +455,70 @@ $nkurz = $objUser->nkurz;
         <input type="hidden" name="trg" value="admin">
         <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
 		<input type="hidden" name="jahr" id="jahr" value="<?php echo $this->ajahr?>">
-        <div style="width:350px;float:left;margin-top:1em;">
+        <div style="">
         <?php if($this->sumMoll): for($i=0;$i<=11;$i++): ?>
             <div class="grundform">
             <div style="width:55px;margin:8px 0.5em 0 0;text-align:right;float:left;"><?php echo $this->moname[$i];?></div>
              <div class="profilstd soll<?php echo $i?>" style="margin:8px 0 0 0;float:left;width:33px;">[<? echo number_format($this->sumMoll[$i+1]);?>]</div>
 			 <?php // Solldaten in DB für gegebenes Jahr ?>
-             <input style="width:50px;" type="text" name="monsoll[]" id="monsoll<?php echo $i?>" class="grundform monsoll" value="<?php echo number_format($monthly[$i],1);?>">
+             <input style="" type="text" name="monsoll[]" id="monsoll<?php echo $i?>" class="form-control grundform monsoll" value="<?php echo number_format($monthly[$i],1);?>">
              <input type="hidden" name="daysoll[]" id="daysoll<?php echo $i?>" value="<?php echo number_format(($monthly[$i]/$this->sumMoll[$i+1]),2)?>">
              <input type="hidden" name="mondays[]" id="monday<?php echo $i?>" value="<?php echo $this->sumMoll[$i+1] ?>">
              <?php // Ist-Daten für gegebenes Jahr ?>
-			 <input style="width:50px;" type="text" name="hrist[]" id="monist<?php echo $i?>" class="grundform" readonly value="<?php echo number_format($this->ist_a[$i],1);?>">
+			 <input style="" type="text" name="hrist[]" id="monist<?php echo $i?>" class="form-control grundform masoll" readonly value="<?php echo number_format($this->ist_a[$i],1);?>">
        </div>
 		<?php /*endforeach;*/ endfor; endif; ?>
 		</div>
     </div>
     <?php //Details ?>
-        <div style="width:230px;float:left;">
-			
+        <div class="mablockright">
 		<h2 id="titeldet">Detailangaben für <?php echo $this->ajahr?></h2>
         <div style="width:190px;float:left;">
 			<div class="grundform" id="infodetail">
             Alle Daten gemäss Eintrag in der DB
         </div>
 		</div>
-        <div style="width:350px;float:left;margin-top:1em;">
+        <div style="">
          <div class="grundform">
             <div style="width:95px;margin:6px 0.5em 0 0;text-align:right;float:left;">Prozentsatz</div>
-            <input style="width:50px;" type="text" id="prozent" name="prozent" class="grundform detail" value="<?php echo $prozent?>">
+            <input style="float:left;width:70px;clear:right;" type="text" id="prozent" name="prozent" class="form-control grundform detail" value="<?php echo $prozent?>">
          </div>
          <div class="grundform">
             <div style="float:left;"><div style="width:95px;margin:6px 0.5em 0 0;text-align:right;float:left;">Stunden soll</div>
-            <input style="width:70px;" type="text" name="yearhours" id="yearhours" class="grundform detail" value="<?php echo $yearhours?>">
+            <input style="float:left;clear:none;width:70px;" type="text" name="yearhours" id="yearhours" class="form-control grundform detail" value="<?php echo $yearhours?>">
             </div>
-            <div style="float:left;"><div style="width:35px;margin:6px 0.5em 0 0;text-align:right;float:left;">ist</div>
-            <input style="width:70px;" type="text" readonly name="iststd" id="yearsumist" class="grundform" value="<?php echo $sumista?>">
-            </div      
+            <div style="float:left;"><div style="width:35px;margin:6px 0.5em 0 2em;text-align:right;float:left;">ist</div>
+            <input style="float:left;clear:right; width:70px;margin-right:0;" type="text" readonly name="iststd" id="yearsumist" class="form-control grundform" value="<?php echo $sumista?>">
+             </div>      
          </div>
          <div class="grundform">
             <div style="float:left;"><div style="width:95px;margin:6px 0.5em 0 0;text-align:right;float:left;">Stunden Saldo</div>
-            <input style="width:50px;" type="text" name="yearhoursaldo" id="yearhoursaldo" class="grundform detail" value="<?php echo $yearhoursaldo?>">
+            <input style="width:70px;float:left;clear:none;margin-right:0;" type="text" name="yearhoursaldo" id="yearhoursaldo" class="form-control grundform detail" value="<?php echo $yearhoursaldo?>">
             </div>
-            <div style="float:left;margin-left:3.8em;"><button class="btn btn-primary profil" type="button">Saldieren</button>
-            </div      
+            <div style="float:right;clear:right;"><button class="btn btn-primary" type="button">Saldieren</button>
+             </div>      
          </div>       
                 
         <div class="grundform">
             <div style="float:left;"><div style="width:95px;margin:6px 0.5em 0 0;text-align:right;float:left;">Ferienanspruch</div>
-            <input style="width:50px;" type="text" name="ferien" id="ferien" class="grundform detail" value="<?php echo $ferien?>">
+            <input style="float:left;clear:none;width:70px;" type="text" name="ferien" id="ferien" class="form-control grundform detail" value="<?php echo $ferien?>">
          </div>
-            <div style="float:left;"><div style="width:55px;margin:6px 0.5em 0 0;text-align:right;float:left;">bezogen</div>
-            <input style="width:50px;" type="text" readonly id="ferienist" name="ferienist" class="grundform" value="<?php echo $ferienist?>">
+            <div style="float:left;"><div style="width:42px;margin:6px 0.5em 0 1.6em;text-align:right;float:left;">bezogen</div>
+            <input style="float:left;width:70px;clear:right;" type="text" readonly id="ferienist" name="ferienist" class="grundform form-control" value="<?php echo $ferienist?>">
          </div>
         </div>
          <div class="grundform">
             <div style="float:left;"><div style="width:95px;margin:6px 0.5em 0 0;text-align:right;float:left;">Ferien Saldo</div>
-            <input style="width:50px;" type="text" name="feriensaldo" id="feriensaldo" class="grundform detail" value="<?php echo $feriensaldo?>">
+            <input style="float:left;clear:none;width:70px;" type="text" name="feriensaldo" id="feriensaldo" class="form-control grundform detail" value="<?php echo $feriensaldo?>">
             </div>
-            <div style="float:left;margin-left:3.8em;"><button class="btn btn-primary profil" type="button">Saldieren</button>
+            <div style="float:right;"><button class="btn btn-primary" type="button">Saldieren</button>
              </div>
          </div>
-         <!--<div class="grundform">
-            <div style="width:95px;margin:6px 0.5em 0 0;text-align:right;float:left;">Krankheitstage</div>
-            <input style="width:50px;" type="text" name="iststd" readonly class="grundform" value="00.0">
-         </div>
-		-->
-            <button class="btn btn-primary profil" id="setmonsoll" style="margin-top:1em;" type="button">Sollstunden gemäss %satz eintragen</button>
-            <button class="btn btn-primary profil" style="margin-top:0.5em;" type="submit">Daten für das gewählte Jahr speichern</button>
-           
-			<div id="infosave" style="display:none;width:85%;margin-top:1em;border: 1px solid rgb(255,13,13);background-color:rgba(255,13,13,0.25);padding:5px;"></div>
+        <div class="grundform" style="height:65px;">
+            <button class="btn btn-primary" id="setmonsoll" style="float:right;margin-top:1em;" type="button">Sollstunden gemäss Prozentsatz eintragen</button>
+            <button class="btn btn-primary" style="float:right;margin-top:0.5em;" type="submit">Daten für das gewählte Jahr speichern</button>
+        </div>   
+		<div id="infosave" style="display:none;width:100%;font-size:14px;line-height:14px;margin-top:3em;border:1px solid rgb(255,13,13);border-radius:5px;background-color:rgba(255,13,13,0.25);padding:5px;"></div>
 		</div>
 	</form>
     </div>
@@ -544,7 +534,7 @@ $nkurz = $objUser->nkurz;
 
 <?php //Projektdaten bereitstellen ?>
 
-    <?php //ACHTUNG SCHALTER EINBAUEN AKTIV/INAKTIV ?>
+<?php //ACHTUNG SCHALTER EINBAUEN AKTIV/INAKTIV ?>
 <script type="text/javascript">
 var projects = [
 <?php if($this->projectarray): foreach ($this->projectarray as $proj):?>
