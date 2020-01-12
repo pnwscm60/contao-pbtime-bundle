@@ -39,30 +39,14 @@ class ModuleRReport extends \Contao\Module
                  
         
     // BEREICH REGIE-REPORT
-
-        
-  
-       
-       $sql='SELECT *, concat(knr,"/",kname,"/",wohnort) as title from tl_project WHERE id='.$pro;
-       $objRegieDet = \Database::getInstance()->execute($sql);
-            $arrProRegie=array(
-                'proid' => $objRegieDet->id,
-                'pkname' => $objRegieDet->kname,
-                'pwohnort' => $objRegieDet->wohnort,
-                'ladress' => $objRegieDet->ladress,
-                'descript' => $objRegieDet->descript,
-            );
-            $this->Template->ptitle = $objRegieDet->kname.'<br/>'.$objRegieDet->ladress.'<br/>'.$objRegieDet->wohnort;
-            $this->Template->projektdata = $arrProRegie;    
-            $this->Template->todo = 'rreport';
+       $sql='SELECT *, tl_project.start as pstart, concat(knr,"/",kname,"/",wohnort) as title, memberid, concat(lastname," ", firstname) as pl from tl_project, tl_member WHERE tl_member.id=memberid AND tl_project.id = '. $pro;
+        $objRegieDet = \Database::getInstance()->execute($sql);
+        $this->Template->ptitle = $objRegieDet->kname.', '.$objRegieDet->ladress.', '.$objRegieDet->wohnort;
+        $this->Template->pl = 'Projektleitung: '.$objRegieDet->pl;
+        $this->Template->pstart = date("d.m.Y",$objRegieDet->pstart);
+        $this->Template->todo = 'rreport';
         
        //Regiedaten für dieses Projekt bereitstellen     
-          
-          // Zuerst Zeiten
-          //$sql="SELECT * from tl_project WHERE id=".$pro;
-          //$objRegiePro = \Database::getInstance()->execute($sql);
-          //times mit Regie für dieses Projekt
-          
         //Abfragen je nach Typ des Eintrags (time, mat oder mach)
         //1. Time
         if($_REQUEST['typ']==0){
