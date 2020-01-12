@@ -1,12 +1,9 @@
 <?php
-
 /**
-DCA für jobs 
-© 2019 Markus Schenker, Phi Network
- */
-/**
- * Table tl_jobs
- */
+*   DCA für jobs 
+*   © 2019 Markus Schenker, Phi Network
+* Table tl_jobs
+*/
 $GLOBALS['TL_DCA']['tl_jobs'] = array
 (
 	// Config
@@ -139,21 +136,21 @@ $GLOBALS['TL_DCA']['tl_jobs'] = array
 		),
 	)
 );
-/*Classes*/
+/*Classes
 class tl_jobs extends Backend {
 
-/*Backend user object */
-/*public function __construct()
+Backend user object 
+public function __construct()
 	{
 		parent::__construct();
 		$this->import('BackendUser', 'User');
 	}
-*/
-    /**
+
+
      * Generate a song row and return it as HTML string
      * @param array
      * @return string
-     */
+    
 public function generateContRow($arrRow)
     {
         return '<div><div style="padding-left:3px;float:left;width:225px;">' . $arrRow['titel'] . '</div></div>';
@@ -187,3 +184,4 @@ public function generateAlias($varValue, DataContainer $dc)
 		return $varValue;
 	}
 }
+*/
