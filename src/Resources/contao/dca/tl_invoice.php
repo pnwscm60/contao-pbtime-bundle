@@ -1,8 +1,8 @@
 <?php
-/**
+/*
 * DCA für ProTime: regie for pbtime
 * © 2020 Markus Schenker, Phi Network
- */
+*/
 
 /**
  * Table tl_regie
