@@ -1,13 +1,9 @@
 <?php
-/**
-DCA für tl_project
-Pbtime
-© 2019 Markus Schenker, Phi Network
- */
-
-
-/**
- * Table tl_project
+/*
+*	DCA für tl_project
+*	Pbtime
+*	© 2019 Markus Schenker, Phi Network
+ * 	Table tl_project
  */
 $GLOBALS['TL_DCA']['tl_project'] = array
 (
