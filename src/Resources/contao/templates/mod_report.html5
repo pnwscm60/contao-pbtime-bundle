@@ -1,51 +1,90 @@
-<div id="vkfreport" style="clear:left;margin-top:6px;">       
-    <h1>Leistungs- u. Materialrapport</h1>
+<div id="regiereport" style="clear:left;margin-top:6px;line-height: 17px;margin-bottom:1.5em;">
+    <div>Probst + Eggimann AG</div>
+    <div>Dorfstrasse 52</div>
+    <div>Postfach 12</div>
+    <div>CH-3123 Belp</div>
+</div>
+<div>Belp, <?php echo date("d.m.Y", time())?></div>
+<div id="regiereport" style="clear:left;margin-top:16px;">       
+    <h1>Rapport für Regieleistungen Nr. <?php echo $this->regietime['rnumber']?><?php echo $this->regiemat['rnumber']?><?php echo $this->regiemach['rnumber']?></h1>
     <div>Projekt: <?php echo $this->ptitle;?></div>
-    <div>Start: <?php echo $this->start;?></div>
-    <div>Ende: <?php echo $this->enddone;?></div>
-    <h2 style="margin-top:1em;">Arbeitsleistungen</h2>
+    <div>Projektleitung: <?php echo $this->pl?></div>
+    <div>Projektstart: <?php echo $this->pstart;?></div>
+<div>&nbsp;</div>
+
+</div>
+
+<div id="regiereport" style="clear:left;margin-top:16px;"> 
+<?php if($this->regietime['typ']===0):?>
+    <h2 class="regie">Arbeitsleistung</h2>
      <div style="margin-top:1em;">
-    <div class="time header">
-    <div class='prolist' style="margin-bottom:5px;">
-   	 	<div class='dat'>&nbsp;</div>
-    	 	<div class='times'> <?php echo $this->ttzeit/60?></div>
-    	<div class='timetitle'>Arbeitsleistungen insgesamt</div>
-		</div></div>
- <?php if ($this->rsumme): foreach ($this->rsumme as $sum): ?>
- 	<div class="time header">
-    <div class='prolist'>
-   	 	<div class='dat leftind'>Total Std.</div>
-    	 	<div class='times'> <?php echo ($sum['summe'])/60?></div>
-    	<div class='timetitle'> <?php echo $sum['ctitle']?></div>
-		</div></div>
-    <?php if ($this->rzeit): foreach ($this->rzeit as $tim): ?>
-    <?php if ($tim['pid']==$sum['catid']):?>
-  <div class="time">
-    <div class="prolist">
-    	<div class='dat'> <?php echo $tim['datum']?></div>
-    	<div class='times'> <?php echo ($tim['zeit'])/60?></div>
-    	<div class='timetitle'> <?php echo $tim['jobtitle']?><?php echo ($tim['descript']!='') ? ' [<span class="small">'.$tim["descript"].'</span>]' : '' ?></div>
-        <div class='times' style="float:right;"> <?php echo $tim['nkurz']?></div>
+   <?php $namearr = array();?>
+
+  <div style="height:auto;padding-bottom:1em;">
+    <div class="regielist">
+    	<div class='dat'> <?php echo $this->regietime['datum']?></div>
+    	<div class='title' style="width:200px;">Leistung: <?php echo $this->regietime['jtitle']?></div>
+        <div class='times'> <?php echo ($this->regietime['rminutes'])?> h</div>
+        <div class='times' style="width:80px">à CHF <?php echo ($this->regietime['transatz'])?>.–</div>
+        <div class='times' > <?php echo $this->regietime['nkurz']?>*</div>
+  </div>
+      <div class="regielist">
+        <div class="times" style="clear:both;width:100%;text-align:left;" >Bemerkungen: <?php echo $this->regietime["trtext"]?></div> 
+      </div>
+        <?php $namearr[] = $this->regietime['nkurz'].': '.$this->regietime['name'];?>
+      </div>
+    </div>
+         <div style="height:5px;clear:both;">&nbsp;</div>
+<?php endif;?>
+<?php if($this->regiemat['typ']==1):?>    
+<div class="regie">Material</div>
+ <div style="margin-top:1em;">
+     <div class="time">
+    <div class='regielist'>
+    	<div class='dat'> <?php echo $this->regiemat['datum']?></div>
+    	<div class='times' style="text-align: left;width:23px;"> <?php echo $this->regiemat['rmamount']?> <?php echo $this->regiemat['rmeinheit']?></div>
+         <div class='times' style="width:80px">à CHF <?php echo ($this->regiemat['rmansatz'])?>.–</div>
+    	<div class='title'> <?php echo $this->regiemat['title']?></div>
+        <div class='times' style="float:right;"> <?php echo $this->regiemat['nkurz']?></div>
         
     </div>
+        <div class='regielist'>
+         <div class="times" style="clear:both;width:100%;text-align:left;">Bemerkungen: <?php echo $this->regiemat["descript"]?></div>
+         </div>
+          <?php $namearr[] = $this->regiemat['nkurz'].': '.$this->regiemat['name'];?>
   </div>
-    <?php endif; ?>
-  <?php endforeach; endif; //Jobs ?>
-    <div style="height:5px;clear:both;">&nbsp;</div>
-  <?php endforeach; endif; //Kategorie ?>
-</div>
-<h2 style="margin-top:1em;">Verbrauchsmaterial</h2>
- <div style="margin-top:1em;">
-     <?php if ($this->repmat): foreach ($this->repmat as $rmat): ?>
-     <div class="time">
-    <div class='prolist'>
-    	<div class='dat'> <?php echo $rmat['datum']?></div>
-    	<div class='times w50' style="text-align: left;"> <?php echo $rmat['amount']?> <?php echo $rmat['einheit']?></div>
-    	<div class='timetitle'> <?php echo $rmat['mattitle']?><?php echo ($rmat['descript']!='') ? ' [<span class="small">'.$rmat["descript"].'</span>]' : '' ?></div>
-        <div class='times' style="float:right;"> <?php echo $rmat['nkurz']?></div>
-    </div>
-  </div>
-      <?php endforeach; endif; //Ende Mat ?>
      </div>
+    <?php endif;?>
+    <?php if($this->regiemach['typ']==2):?>
+    <div class="regie">Maschinennutzung</div>
+     <div style="margin-top:1em;">
+   <?php $namearr = array();?>
+
+  <div style="height:auto;padding-bottom:1em;">
+    <div class="regielist">
+    	<div class='dat'> <?php echo $this->regiemach['datum']?></div>
+    	<div class='title' style="width:200px;">Leistung: <?php echo $this->regiemach['jtitle']?></div>
+        <div class='times'> <?php echo ($this->regiemach['rminutes'])?> h</div>
+        <div class='times' style="width:80px">à CHF <?php echo ($this->regiemach['transatz'])?>.–</div>
+        <div class='times' > <?php echo $this->regiemach['nkurz']?>*</div>
+  </div>
+      <div class="regielist">
+        <div class="times" style="clear:both;width:100%;text-align:left;" >Bemerkungen: <?php echo $this->regiemach["trtext"]?></div> 
+      </div>
+        <?php $namearr[] = $this->regiemach['nkurz'].': '.$this->regiemach['name'];?>
+      </div>
+    </div>
+         <div style="height:5px;clear:both;">&nbsp;</div>
+<?php endif;?>
+    
+    <div style="margin-top:1em; line-height: 100%;">* Leistungen ausgeführt durch: 
+    <?php if ($namearr): foreach ($namearr as $namen):?>
+        <?php echo $namen .' '?>
+    <?php endforeach; endif;?>
+    </div>
+    </div>
+<div style="margin-top:2.5em;">
+Die aufgeführten Leistungen werden vom Bauführer bestätigt und genehmigt.
 </div>
-</div> <?php // Ende BEREICH Verkauf?>
+<div style="margin-top:1em;">Datum/Unterschrift:</div>
+ <?php // Ende BEREICH Verkauf?>
