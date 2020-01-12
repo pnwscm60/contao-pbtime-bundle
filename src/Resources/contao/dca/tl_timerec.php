@@ -1,13 +1,10 @@
 <?php
 
-/**
-DCA für Timerec
-© 2019 Markus Schenker, Phi Network
- */
-
-/**
- * Table tl_timerec
- */
+/*
+* DCA für Timerec
+* © 2019 Markus Schenker, Phi Network
+* Table tl_timerec
+*/
 $GLOBALS['TL_DCA']['tl_timerec'] = array
 (
 	// Config
@@ -67,13 +64,6 @@ $GLOBALS['TL_DCA']['tl_timerec'] = array
 				'icon'                => 'delete.gif',
 				'attributes'          => 'onclick="if(!confirm(\'' . $GLOBALS['TL_LANG']['MSC']['deleteConfirm'] . '\'))return false;Backend.getScrollOffset()"'
 			),
-			/*'toggle' => array
-			(
-				'label'               => &$GLOBALS['TL_LANG']['tl_timerec']['toggle'],
-				'icon'                => 'visible.gif',
-				'attributes'          => 'onclick="Backend.getScrollOffset();return AjaxRequest.toggleVisibility(this,%s)"',
-				'button_callback'     => array('tl_timerec', 'toggleIcon')
-			),*/
 			'show' => array
 			(
 				'label'               => &$GLOBALS['TL_LANG']['tl_timerec']['show'],
@@ -240,7 +230,7 @@ $GLOBALS['TL_DCA']['tl_timerec'] = array
 	)
 );
 /*Classes*/
-class tl_timerec extends Backend {
+//class tl_timerec extends Backend {
 
 /*Backend user object */
 /*public function __construct()
@@ -254,6 +244,7 @@ class tl_timerec extends Backend {
      * @param array
      * @return string
      */
+/*
 public function generateTimeRow($arrRow)
     {
         return '<div><div style="float:left;width:75px;">' . $arrRow['datum'] . '</div><div style="padding-left:3px;float:left;width:30px;">' . $arrRow['minutes'] . '</div><div style="padding-left:3px;float:left;">' . $arrRow['descript'] . '</div></div>';
@@ -286,4 +277,6 @@ public function generateAlias($varValue, DataContainer $dc)
 		}
 		return $varValue;
 	}
-}
+
+*/
+//}
