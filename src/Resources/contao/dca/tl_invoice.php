@@ -1,7 +1,7 @@
 <?php
 /**
-DCA für ProTime: regie for pbtime
-© 2020 Markus Schenker, Phi Network
+* DCA für ProTime: regie for pbtime
+* © 2020 Markus Schenker, Phi Network
  */
 
 /**
