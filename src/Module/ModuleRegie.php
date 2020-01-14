@@ -40,50 +40,7 @@ class ModuleRegie extends \Contao\Module
             $this->Template->trg = $trg;
          }
         
-           // Projektauswahl mit Filter
-        if($_REQUEST['filter']!=''){
-				if ($_REQUEST['filter']=="aktiv") {
-					$filter = 'WHERE enddone =""';
-				}
-				if ($_REQUEST['filter']=="alle"){
-					$filter = '';
-				}
-			} else {
-			$filter = 'WHERE enddone =""';
-		}
-        $this->Template->filter = $filter;
-     
-        $this->import('Database');
-        $sql ="SELECT id, concat(knr,'/',kname,'/',wohnort) as title from tl_project ".$filter." ORDER by title;";
-        $result = $this->Database->prepare($sql)->execute();
-        $projectArray = array();
-        while($result->next())
-        {
-            $projectArray[] = array
-		(
-			'id' => $result->id,
-			'title' => $result->title
-                );
-        }
-        $this->Template->projectarray = $projectArray;
-        
-/**** PART 4: VERKAUF ****/
-    //Für Vkf berechtigte Member = Verkauf + Admin
-    $sql= "SELECT tl_member.id, concat(lastname,' ',firstname) as name, groups FROM tl_member ORDER by name";
-    $objMemb = $this->Database->execute($sql);
-    while ($objMemb->next()){
-        $grp = unserialize($objMemb->groups);
-        if(in_array(2,$grp)||in_array(3,$grp)){
-            $arrMemb[] = array
-                (
-                'id' => $objMemb->id,
-                'name' => $objMemb->name
-                );
-        }
-    }
-    $this->Template->vkfmemb = $arrMemb;
-        
-    //REGIELISTE 
+    //REGIELISTE = AUSWAHL NICHT BEARBEITETE REGIELEISTUNGEN
     //Projekte bereitstellen mit Regieeinträgen
         $sql='SELECT pid from tl_costrec WHERE mregie = 1 AND rmdone = 0 UNION SELECT pid from tl_timerec WHERE tregie = 1 AND trdone=0 UNION SELECT pid from tl_machrec WHERE tregie = 1 AND trdone=0';
         $objRegie = \Database::getInstance()->execute($sql);
@@ -102,140 +59,55 @@ class ModuleRegie extends \Contao\Module
             );
             }
         }
-            $this->Template->regielist = $arrProRegie;
+        $this->Template->regielist = $arrProRegie;
+    
+    // REGIELISTE 2 > REGIERAPPORT FÜR WELCHES DATUM?
+    if($_REQUEST['todo']=='prepregie'){ 
+        // Alle Daten für dieses Projekt
+        $sql="SELECT * from tl_project WHERE id=".$projekt;
         
-        /* ****************** */
-        if($_REQUEST['trg']=='vkf'){
-		//******************************
-		//**UPDATE PROJEKT
-            if($_REQUEST['todo']=='updatepro'){
-			$id=$_REQUEST['id'];
-            $knr=$_REQUEST['knr'];
-			$kname=$_REQUEST['kname'];
-            $wohnort=$_REQUEST['wohnort'];
-			$descript=$_REQUEST['descript'];
-			$start=$_REQUEST['start'];
-			$enddone=$_REQUEST['enddone'];
-			$ladress=$_REQUEST['ladress'];
-            $memberid=$_REQUEST['memberid'];
-			$status=$_REQUEST['status'];
-            $start1 = strtotime($start);
-            if($enddone==''){ 
-            $enddone1 = 0; 
-            } else {
-            $enddone1 = strtotime($enddone);
-            }
-			$sql='UPDATE tl_project SET tstamp='.time().',kname="'.$kname.'",knr="'.$knr.'",wohnort="'.$wohnort.'",descript="'.$descript.'",start='.$start1.',enddone='.$enddone1.',ladress="'.$ladress.'", memberid='.$memberid.' WHERE id='.$id.';';
-            $objResult = \Database::getInstance()->execute($sql);  
-		}
-		/*    End Update      */
-		/*****  NEW PROJECT *****/
-        /************************/  
-		if($_REQUEST['todo']=='insertpro'){
-			$knr=$_REQUEST['knr'];
-			$kname=$_REQUEST['kname'];
-            $wohnort=$_REQUEST['wohnort'];
-			$descript=$_REQUEST['descript'];
-			$start=$_REQUEST['start'];
-			$enddone=$_REQUEST['enddone'];
-            $memberid=$_REQUEST['memberid'];
-			$ladress=$_REQUEST['ladress'];
-            $start1 = strtotime($start);
-            $enddone1 = 0;
-			$sql='INSERT into tl_project (tstamp, knr,kname,wohnort, descript, start, enddone, ladress, memberid';
-			$sql.=') VALUES ('.time().',"'.$knr.'","'.$kname.'","'.$wohnort.'","'.$descript.'",'.$start1.','.$enddone1.',"'.$ladress.'",'.$memberid;
-			$sql.=');';
-            //echo $sql;
-            $objResult = \Database::getInstance()->execute($sql);  
-			$this->Template->mess = 'Neues Projekt wurde erfolgreich angelegt';
-		}
-		
-		/********* DELETE PROJECT *********/
-        /* ****************************** */
-		if($_REQUEST['todo']=='delpro'){
-		$id=$_REQUEST['id'];
-        $objResult = \Database::getInstance()->execute($sql);  
-            
-        // Hier muss noch Routine rein > alle Leistungen/Material löschen mit diesem Projekt ! > ACHTUNG: Projekt nicht löschen, sondern inaktiv setzen
-		} 
-		if($_REQUEST['filter']!=''){
-			if ($_REQUEST['filter']=="aktiv") {
-					$filter = 'WHERE status = 1';
-				}
-				if ($_REQUEST['filter']=="alle"){
-					$filter = 'WHERE status = 0 OR status = 1 OR status = 2';
-				}
-			} else {
-			$filter = 'WHERE status = 1';
-		}
-		
-	
-    // BEREICH PROJEKT EDITIEREN
-	/****************************/
-		if($_REQUEST['todo']=='editpro'){
-		$sql='SELECT tl_project.id, tl_project.tstamp, knr, kname, wohnort, ladress, descript, tl_project.start, tl_project.enddone, memberid FROM tl_project WHERE tl_project.id='.$projekt;
-        $objEProject = $this->Database->execute($sql);
-        
-		$arrEProject= array();
-		
-		while ($objEProject->next())
-            $start = date("d.m.Y", $objEProject->start);
-            if($objEProject->enddone!=0){
-                $ende = date("d.m.Y", $objEProject->enddone);
-            } else {
-                $ende = "";
-            }
-		{
-        echo $objProjects->wohnort;
-		$arrEProject[] = array
-		(
-			'id' => $objEProject->id,
-			'knr' => $objEProject->knr,
-            'kname' => $objEProject->kname,
-            'wohnort' => $objEProject->wohnort,
-			'descript' => $objEProject->descript,
-			'start' => $start,
-			'enddone' => $ende,
-			'ladress' => $objEProject->ladress,
-			'status' => $objEProject->status,
-            'memberid' => $objEProject->memberid,
-		);
-	}
-	$this->Template->eproject = $arrEProject;
-         
-	//$this->Template->nprocont = $arrCont;
-	//$this->Template->nprocust = $arrCust;
-	$this->Template->pid = $_REQUEST['id'];
-	$this->Template->scope = 'pledit';
-		}
-       
+        $objRegiePro = \Database::getInstance()->execute($sql);
+        $this->Template->pid = $objRegiePro->id;
+        $this->Template->knr = $objRegiePro->knr;
+        $this->Template->kname = $objRegiePro->kname;
+        $this->Template->wohnort = $objRegiePro->wohnort;
+        $this->Template->descript = $objRegiePro->descript;
+        $this->Template->ladress = $objRegiePro->ladress;
+        $dat1 = date("d.m.Y", $objRegiePro->start);
+    /*******************/
+    //Jetzt Auswahlliste der Daten, für die Regieeinträge bestehen
+        $sql='SELECT datum from tl_timerec WHERE tl_timerec.pid = '.$projekt.' AND tl_timerec.tregie = 1 and tl_timerec.trdone=0 GROUP BY datum UNION SELECT datum from tl_costrec WHERE tl_costrec.pid = '.$projekt.' AND mregie = 1 and rmdone=0 GROUP BY datum UNION SELECT datum from tl_machrec WHERE tl_machrec.pid = '.$projekt.' AND tl_machrec.tregie = 1 and tl_machrec.trdone=0 GROUP BY datum';
+        $objRegDat = \Database::getInstance()->execute($sql);
+        while($objRegDat->next()){
+            $newdat = date("d.m.Y",$objRegDat->datum);
+            $arrRegDat[] = array(
+                'dat' => $newdat
+            );
+        }
+        $this->Template->doit = 'chooseregiedat';
+        $this->Template->regiedaten = $arrRegDat;
+    }
+    
     // BEREICH REGIE-RAPPORT
     //**************************
-    //* Teil 1: REGIEEDIT SPEICHERN */
+    //* Teil 1: REGIEFIRSTEDIT SPEICHERN = REGIERAPPORT ANLEGEN */
+    //datum wird nur in tl_regie gespeichert, Datum Leistungen bleibt unverändert
     if($_REQUEST['todo']=='saveregieed'){
-        
+      
         $tlim=count($_REQUEST['tid']);
         for($i=0;$i<$tlim;$i++){
             //Jeden Regieeintrag Zeiten auslesen > tl_timerec aktualisieren
             //echo $i.": ";
             $tid = $_REQUEST['tid'][$i];
+            $timeids .= "-".$_REQUEST['tid'][$i];
             //echo $tid." ";
             $timarr[]=$tid;
             $rminutes = $_REQUEST['rminutes'][$i]*60;
             $transatz = $_REQUEST['transatz'][$i];
             $trtext = $_REQUEST['trtext'][$i];
             $trdone = mktime(0,0,0,date("m"),date("d"),date("y"));
-            //höchste Regienummer für dieses Projekt holen
-            $sql2='SELECT trnumber as nr from tl_timerec WHERE pid = '.$projekt.' AND tregie = 1 UNION SELECT rmnumber as nr from tl_costrec where pid = '.$projekt.' AND mregie = 1 UNION SELECT trnumber as nr from tl_machrec WHERE pid = '.$projekt.' AND tregie = 1';
-            //echo $sql2;
-            $objMaxnr = \Database::getInstance()->execute($sql2);
-            $regnrt = array();
-            while($objMaxnr->next()){
-                 $regnrt[] =  $objMaxnr->nr;
-            }
-            $newregnr = max($regnrt)+1;
-            $sql='UPDATE tl_timerec SET tstamp='.time().', rminutes='.$rminutes.',transatz='.$transatz.',trtext="'.$trtext.'",trdone='.$trdone.', trnumber='.$newregnr.' WHERE id='.$tid.';';
-           //echo "</br>".$sql."</br>";
+ 
+            $sql='UPDATE tl_timerec SET tstamp='.time().', rminutes='.$rminutes.',transatz='.$transatz.',trtext="'.$trtext.'",trdone='.$trdone.' WHERE id='.$tid.';';
             $objResult = \Database::getInstance()->execute($sql); 
         }
         $matarr = array();
@@ -243,6 +115,7 @@ class ModuleRegie extends \Contao\Module
         for($i=0;$i<$mlim;$i++){
             //Jeden Regieeintrag Material auslesen > tl_costrec aktualisieren
             $mid = $_REQUEST['mid'][$i];
+            $matids .= "-".$_REQUEST['mid'][$i];
             $matarr[]=$mid;
             $rmamount = $_REQUEST['rmamount'][$i];
             $rmeinheit = $_REQUEST['rmeinheit'][$i];
@@ -250,53 +123,118 @@ class ModuleRegie extends \Contao\Module
             $rmtext = $_REQUEST['rmtext'][$i];
             $rmkommentar = $_REQUEST['rmkommentar'][$i];
             $rmdone = mktime(0,0,0,date("m"),date("d"),date("y"));
-            //höchste Regienummer für dieses Projekt holen
-            $sql='SELECT trnumber as nr from tl_timerec WHERE pid = '.$projekt.' AND tregie = 1 UNION SELECT rmnumber as nr from tl_costrec where pid = '.$projekt.' AND mregie = 1 UNION SELECT trnumber as nr from tl_machrec WHERE pid = '.$projekt.' AND tregie = 1';
-            $objMaxnr = \Database::getInstance()->execute($sql);
+
             $regnrm = array();
-            while($objMaxnr->next()){
-                 $regnrm[] = $objMaxnr->nr;
-            }
-            $newregnr = max($regnrm)+1;
-            $sql='UPDATE tl_costrec SET tstamp='.time().', rmamount='.$rmamount.',rmeinheit='.$rmeinheit.',rmansatz='.$rmansatz.',rmtext="'.$rmtext.'",rmkommentar="'.$rmkommentar.'",rmdone='.$rmdone.', rmnumber='.$newregnr.' WHERE id='.$mid.';';
+
+            $sql='UPDATE tl_costrec SET tstamp='.time().', rmamount='.$rmamount.',rmeinheit='.$rmeinheit.',rmansatz='.$rmansatz.',rmtext="'.$rmtext.'",rmkommentar="'.$rmkommentar.'",rmdone='.$rmdone.' WHERE id='.$mid.';';
             $objResult = \Database::getInstance()->execute($sql);
-            echo $sql;
+            //echo $sql."<br/>";
         }
         $malim=count($_REQUEST['maid']);
         $macharr = array();    
         for($i=0;$i<$malim;$i++){
             //Jeden Regieeintrag Zeiten auslesen > tl_timerec aktualisieren
             $maid = $_REQUEST['maid'][$i];
+            $machids .= "-".$_REQUEST['maid'][$i];
             $timarr[]=$tid;
             $rminutes = $_REQUEST['mrminutes'][$i]*60;
             $transatz = $_REQUEST['mtransatz'][$i];
             $trtext = $_REQUEST['mtrtext'][$i];
             $trdone = mktime(0,0,0,date("m"),date("d"),date("y"));
-            //höchste Regienummer für dieses Projekt holen
-            $sql='SELECT trnumber as nr from tl_timerec WHERE pid = '.$projekt.' AND tregie = 1 UNION SELECT rmnumber as nr from tl_costrec where pid = '.$projekt.' AND mregie = 1 UNION SELECT trnumber as nr from tl_machrec WHERE pid = '.$projekt.' AND tregie = 1';
-            $objMaxnr = \Database::getInstance()->execute($sql);
-            
-            $regnrma = array();
-            while($objMaxnr->next()){
-                $regnrma[] = $objMaxnr->nr;
-            }
-            $newregnr = max($regnrma)+1;
-            echo "NEU:".$newregnr;
-            $sql='UPDATE tl_machrec SET tstamp='.time().', rminutes='.$rminutes.',transatz='.$transatz.',trtext="'.$trtext.'",trdone='.$trdone.', trnumber='.$newregnr.' WHERE id='.$maid.';';
-            $objResult = \Database::getInstance()->execute($sql); 
-        }
-            
+            $sql='UPDATE tl_machrec SET tstamp='.time().', rminutes='.$rminutes.',transatz='.$transatz.',trtext="'.$trtext.'",trdone='.$trdone.' WHERE id='.$maid.';';
+            $objResult = \Database::getInstance()->execute($sql);
+        }  
+        $tids = substr($timeids, 1);
+        $mtids = substr($matids, 1);
+        $mmids = substr($machids, 1);
+        $descript = $_REQUEST['descript'];
+        $tstmp = time();
+        $rrdatum = $_REQUEST['datum'];
+        $rdatum = strtotime($rrdatum);
+        // Such die höchste Regienr desselben Projekts
+        $sql='SELECT max(regienr) as rmax from tl_regie WHERE pid='.$projekt;
+        $objResult = \Database::getInstance()->execute($sql);
+        if ($objResult->rmax==''){ $rmax = 1; } else { $rmax = $objResult->rmax;};
+        $sql='INSERT INTO tl_regie (pid,tstamp,regienr,rrdatum,timeids, matids, machids, descript) VALUES ('.$projekt.','.$tstmp.','.$rmax.','.$rdatum.',"'.$tids.'","'.$mtids.'","'.$mmids.'", "'.$descript.'")';
+        $objResult = \Database::getInstance()->execute($sql);
         $todo = "report";
         }
-    
-       //Regieedit für dieses Projekt bereitstellen     
-      if($_REQUEST['todo']=='prepeditregie'){ 
+        /* EDIT EINES BESTEHENDEN REGIERAPPORTS SPEICHERN*/
+        if($_REQUEST['todo']=='saveeditregierap'){
+        $tlim=count($_REQUEST['tid']);
+        for($i=0;$i<$tlim;$i++){
+            //Jeden Regieeintrag Zeiten auslesen > tl_timerec aktualisieren
+            //echo $i.": ";
+            $tid = $_REQUEST['tid'][$i];
+            $timeids .= "-".$_REQUEST['tid'][$i];
+            //echo $tid." ";
+            $timarr[]=$tid;
+            $rminutes = $_REQUEST['rminutes'][$i]*60;
+            $transatz = $_REQUEST['transatz'][$i];
+            $trtext = $_REQUEST['trtext'][$i];
+            $trdone = mktime(0,0,0,date("m"),date("d"),date("y"));
+ 
+            $sql='UPDATE tl_timerec SET tstamp='.time().', rminutes='.$rminutes.',transatz='.$transatz.',trtext="'.$trtext.'",trdone='.$trdone.' WHERE id='.$tid.';';
+            $objResult = \Database::getInstance()->execute($sql); 
+        }
+        $matarr = array();
+        $mlim=count($_REQUEST['mid']);
+        for($i=0;$i<$mlim;$i++){
+            //Jeden Regieeintrag Material auslesen > tl_costrec aktualisieren
+            $mid = $_REQUEST['mid'][$i];
+            $matids .= "-".$_REQUEST['mid'][$i];
+            $matarr[]=$mid;
+            $rmamount = $_REQUEST['rmamount'][$i];
+            $rmeinheit = $_REQUEST['rmeinheit'][$i];
+            $rmansatz = $_REQUEST['rmansatz'][$i];
+            $rmtext = $_REQUEST['rmtext'][$i];
+            $rmkommentar = $_REQUEST['rmkommentar'][$i];
+            $rmdone = mktime(0,0,0,date("m"),date("d"),date("y"));
+
+            $sql='UPDATE tl_costrec SET tstamp='.time().', rmamount='.$rmamount.',rmeinheit='.$rmeinheit.',rmansatz='.$rmansatz.',rmtext="'.$rmtext.'",rmkommentar="'.$rmkommentar.'",rmdone='.$rmdone.' WHERE id='.$mid.';';
+            $objResult = \Database::getInstance()->execute($sql);
+            //echo $sql."<br/>";
+        }
+        $malim=count($_REQUEST['maid']);
+        $macharr = array();    
+        for($i=0;$i<$malim;$i++){
+            //Jeden Regieeintrag Zeiten auslesen > tl_timerec aktualisieren
+            $maid = $_REQUEST['maid'][$i];
+            $machids .= "-".$_REQUEST['maid'][$i];
+            $timarr[]=$tid;
+            $rminutes = $_REQUEST['mrminutes'][$i]*60;
+            $transatz = $_REQUEST['mtransatz'][$i];
+            $trtext = $_REQUEST['mtrtext'][$i];
+            $trdone = mktime(0,0,0,date("m"),date("d"),date("y"));
+            $sql='UPDATE tl_machrec SET tstamp='.time().', rminutes='.$rminutes.',transatz='.$transatz.',trtext="'.$trtext.'",trdone='.$trdone.' WHERE id='.$maid.';';
+            $objResult = \Database::getInstance()->execute($sql);
+        }  
+        $tids = substr($timeids, 1);
+        $mtids = substr($matids, 1);
+        $mmids = substr($machids, 1);
+        $descript = $_REQUEST['descript'];
+        $regienr = $_REQUEST['regienr'];
+        $tstmp = time();
+        $rrdatum = $_REQUEST['datum'];
+        $rdatum = strtotime($rrdatum);
+        // Such die höchste Regienr desselben Projekts
+        $sql='UPDATE tl_regie SET tstamp='.$tstmp.',descript="'.$descript.'" WHERE tl_regie.id='.$regienr;
+        $objResult = \Database::getInstance()->execute($sql);
+        header("location:verkauf.html?trg=vkf&todo=report&proj=".$projekt."");
+        }
+      //REGIEFIRSTEDIT ANGEFORDERT FÜR EIN BESTIMMTES DATUM > DATEN FÜR RR VORBEREITUNG BEREITSTELLEN     
+      if($_REQUEST['todo']=='prepeditregie'){
           $pro = $_REQUEST['proj'];
           // Zuerst Zeiten
-          $sql="SELECT * from tl_project WHERE id=".$pro;
+          $sql="SELECT * from tl_project WHERE id=".$projekt;
           $objRegiePro = \Database::getInstance()->execute($sql);
+
           //times mit Regie für dieses Projekt
-          $sql='SELECT tl_timerec.id as id, datum, jobid, catid, rjobid, rcatid, tl_category.title as ctitle, tl_jobs.title as jtitle, minutes, rminutes, tregiekommentar,  tl_timerec.descript as descript, tregiekommentar, transatz, trtext, trdone from tl_timerec, tl_category, tl_jobs WHERE tl_timerec.catid = tl_category.id AND tl_timerec.jobid = tl_jobs.id AND tl_timerec.pid = '.$pro.' AND tregie = 1 and trdone=0';
+          $dat = $_REQUEST['datum'];
+          $this->Template->datum = $dat;
+          $datum = strtotime($dat);
+
+          $sql='SELECT tl_timerec.id as id, datum, jobid, catid, rjobid, rcatid, tl_category.title as ctitle, tl_jobs.title as jtitle, minutes, rminutes, tregiekommentar, tl_timerec.descript as descript, tregiekommentar, transatz, trtext, trdone, nkurz from tl_timerec, tl_category, tl_jobs, tl_member WHERE tl_timerec.catid = tl_category.id AND tl_timerec.jobid = tl_jobs.id AND memberid = tl_member.id AND tl_timerec.pid = '.$pro.' AND tregie = 1 and trdone=0 AND datum='.$datum.' ORDER BY ctitle, jtitle';
           $objRegieTime = \Database::getInstance()->execute($sql);
           
           while ($objRegieTime->next())
@@ -307,6 +245,7 @@ class ModuleRegie extends \Contao\Module
                 'tid' => $objRegieTime->id,
                 'datum' => $dattime,
                 'knr' => $objRegieTime->knr,
+                'nkurz' => $objRegieTime->nkurz,
                 'descript' => $objRegieTime->descript,
                 'ctitle' => $objRegieTime->ctitle,
                 'jtitle' => $objRegieTime->jtitle,
@@ -322,7 +261,7 @@ class ModuleRegie extends \Contao\Module
           }
           
           //mat mit Regie für dieses Projekt
-          $sql='SELECT * from tl_costrec WHERE pid = '.$pro.' AND mregie=1 and rmdone=0';
+          $sql='SELECT tl_costrec.id, pid, datum, einheit, amount, descript, title, memberid, rmdone, rmdescript, rmamount, rmeinheit, rmkommentar, rmansatz, rmtext, rmtitle, mregie, rmnumber, rmfinal, typ, nkurz from tl_costrec, tl_member WHERE pid = '.$pro.' AND mregie=1 AND memberid = tl_member.id AND rmdone=0 AND datum='.$datum;
           $objRegieMat = \Database::getInstance()->execute($sql);
           while ($objRegieMat->next())
             {
@@ -336,7 +275,9 @@ class ModuleRegie extends \Contao\Module
             $arrRegieMat[]=array(
                 'mid' => $objRegieMat->id,
                 'datum' => $datmat,
-                'einheit' => $eh,
+                'einheit' => $objRegieMat->einheit,
+                'eh' => $eh,
+                'nkurz' => $objRegieMat->nkurz,
                 'amount' => $objRegieMat->amount,
                 'descript' => $objRegieMat->descript,
                 'title' => $objRegieMat->title,
@@ -348,7 +289,7 @@ class ModuleRegie extends \Contao\Module
             );
             }
           //machinetime for this project
-          $sql='SELECT tl_machrec.id as id, datum, jobid, catid, rjobid, rcatid, tl_category.title as ctitle, tl_jobs.title as jtitle, minutes, rminutes, tregiekommentar,  tl_machrec.descript as descript, tregiekommentar, transatz, trtext, trdone from tl_machrec, tl_category, tl_jobs WHERE tl_machrec.catid = tl_category.id AND tl_machrec.jobid = tl_jobs.id AND tl_machrec.pid = '.$pro.' AND tregie = 1 and trdone=0';
+          $sql='SELECT tl_machrec.id as id, datum, jobid, catid, rjobid, rcatid, tl_category.title as ctitle, tl_jobs.title as jtitle, minutes, rminutes, tregiekommentar, tl_machrec.descript as descript, tregiekommentar, transatz, trtext, trdone, nkurz from tl_machrec, tl_category, tl_jobs, tl_member WHERE tl_machrec.catid = tl_category.id AND memberid = tl_member.id AND tl_machrec.jobid = tl_jobs.id AND tl_machrec.pid = '.$pro.' AND tregie = 1 and trdone=0 AND datum='.$datum;
           $objRegieMach = \Database::getInstance()->execute($sql);
           
           while ($objRegieMach->next())
@@ -358,6 +299,7 @@ class ModuleRegie extends \Contao\Module
               $arrRegieMach[]=array(
                 'tid' => $objRegieMach->id,
                 'datum' => $dattime,
+                'nkurz' => $objRegieMach->nkurz,
                 'knr' => $objRegieMach->knr,
                 'descript' => $objRegieMach->descript,
                 'ctitle' => $objRegieMach->ctitle,
@@ -381,13 +323,130 @@ class ModuleRegie extends \Contao\Module
           $this->Template->knr = $objRegiePro->knr;
           $this->Template->kname = $objRegiePro->kname;
           $this->Template->wohnort = $objRegiePro->wohnort;
-          $this->Template->descript = $objRegiePro->descript;
+          $this->Template->pdescript = $objRegiePro->descript;
           $this->Template->ladress = $objRegiePro->ladress;
            $dat1 = date("d.m.Y", $objRegiePro->start);
           $this->Template->start = $dat1;
           $this->Template->doit = 'editregie';
-      }   
-        //** REGIELEIST CONFIRM
+      }
+    /* REGIEEDIT BEREITSTELLEN FÜR BEREITS ANGELEGTEN REGIERAPPORT*/    
+     if($_REQUEST['todo']=='prepeditregierap'){
+         $rid = $_REQUEST['rid'];
+
+         // Zuerst Zeiten
+         $sql='SELECT tl_regie.id as rid, tl_regie.pid as pid, knr, kname, wohnort, tl_regie.descript as descript, ladress, regienr, rrdatum as datum, timeids, matids, machids, concat(lastname," ",firstname) as pl from tl_project, tl_regie, tl_member WHERE tl_project.memberid = tl_member.id AND tl_regie.id='.$rid.' AND tl_regie.pid=tl_project.id';
+         
+         $objRegie = \Database::getInstance()->execute($sql);
+         $this->Template->doit = 'editregrap';
+         $this->Template->rid = $objRegie->rid;
+         $this->Template->pid = $objRegie->pid;
+         $this->Template->knr = $objRegie->knr;
+         $this->Template->kname = $objRegie->kname;
+         $this->Template->wohnort = $objRegie->wohnort;
+         $this->Template->descript = $objRegie->descript;
+         $this->Template->ladress = $objRegie->ladress;
+         $this->Template-> pl = $objRegie->pl;
+         $this->Template-> regienr = $objRegie->regienr;
+         $this->Template-> datum = date("d.m.Y",$objRegie->datum);
+         $this->Template-> timeids = explode("-",$objRegie->timeids);
+         $this->Template-> matids = explode("-",$objRegie->matids);
+         $this->Template-> machids = explode("-",$objRegie->machids);
+
+          //times dieser regienr
+         $searchtimes = "'" . implode("','", explode("-",$objRegie->timeids)) . "'";
+         $sql='SELECT tl_timerec.id,tl_timerec.pid,catid,jobid,datum,tl_category.title as ctitle, tl_jobs.title as jtitle,minutes,descript,tregie,trdone,transatz,trtext,rminutes,nkurz FROM tl_timerec, tl_category, tl_jobs, tl_member WHERE catid=tl_category.id AND jobid=tl_jobs.id AND tl_member.id=memberid AND tl_timerec.id IN ('.$searchtimes.') ORDER by catid, jobid';
+
+         $objRegieTime = \Database::getInstance()->execute($sql);
+         
+          while ($objRegieTime->next())
+            {
+              $dattime = date("d.m.Y", $objRegieTime->datum);
+              $rdonetime = date("d.m.Y", $objRegieTime->trdone);
+              $arrRegieTime[]=array(
+                'tid' => $objRegieTime->id,
+                'datum' => $dattime,
+                'knr' => $objRegieTime->knr,
+                'nkurz' => $objRegieTime->nkurz,
+                'descript' => $objRegieTime->descript,
+                'ctitle' => $objRegieTime->ctitle,
+                'jtitle' => $objRegieTime->jtitle,
+                'minutes' => $objRegieTime->minutes/60,
+                'rjobid' => $objRegieTime->rjobid,
+                'rcatid' => $objRegieTime->rcatid,
+                'rminutes' => $objRegieTime->rminutes/60,
+                'tregiekommentar' => $objRegieTime->tregiekommentar,
+                'transatz' => $objRegieTime->transatz,
+                'trtext' => $objRegieTime->trtext,
+                'trdone' => $rdonetime
+            );
+          }
+          
+          //mat mit Regie für dieses Projekt
+         $searchmat = "'" . implode("','", explode("-",$objRegie->matids)) . "'";
+         $sql='SELECT tl_costrec.id, pid, datum, einheit, amount, descript, title, rmdone, rmdescript, rmamount, rmeinheit, rmkommentar, rmansatz, rmtext, rmtitle, mregie, rmnumber, rmfinal, typ, nkurz from tl_costrec, tl_member WHERE tl_costrec.id IN ('.$searchmat.') AND memberid = tl_member.id';
+         $objRegieMat = \Database::getInstance()->execute($sql);
+         while ($objRegieMat->next())
+            {
+              $datmat = date("d.m.Y", $objRegieMat->datum);
+              $rmdone = date("d.m.Y", $objRegieMat->rmdone);
+              if($objRegieMat->einheit==5){$eh = "kg";}
+            elseif($objRegieMat->einheit==1){$eh = "l";}
+            elseif($objRegieMat->einheit==2){$eh = "m";}
+            elseif($objRegieMat->einheit==3){$eh = "m2";}
+            elseif($objRegieMat->einheit==4){$eh = "St.";}
+            $arrRegieMat[]=array(
+                'mid' => $objRegieMat->id,
+                'datum' => $datmat,
+                'einheit' => $objRegieMat->einheit,
+                'eh' => $eh,
+                'nkurz' => $objRegieMat->nkurz,
+                'amount' => $objRegieMat->amount,
+                'descript' => $objRegieMat->descript,
+                'title' => $objRegieMat->title,
+                'rmdone' => $rmdone,
+                'rmamount' => $objRegieMat->rmamount,
+                'rmtext' => $objRegieMat->rmtext,
+                'rmansatz' => $objRegieMat->rmansatz,
+                'rmkommentar' => $objRegieMat->rmkommentar
+            );
+            }
+         
+         $searchmach = "'" . implode("','", explode("-",$objRegie->machids)) . "'";
+          //machinetime for this project
+          $sql='SELECT tl_machrec.id as id, tl_machrec.pid, datum, rjobid, rcatid, tl_category.title as ctitle, tl_jobs.title as jtitle, minutes, rminutes, tregiekommentar, tl_machrec.descript as descript, tregiekommentar, transatz, trtext, trdone, nkurz from tl_machrec, tl_category, tl_jobs, tl_member WHERE catid=tl_category.id AND jobid=tl_jobs.id AND tl_member.id=memberid AND tl_machrec.id IN ('.$searchmach.') ORDER by catid, jobid';;
+         $objRegieMach = \Database::getInstance()->execute($sql);
+          
+          while ($objRegieMach->next())
+            {
+              $dattime = date("d.m.Y", $objRegieMach->datum);
+              $rdonetime = date("d.m.Y", $objRegieMach->trdone);
+              $arrRegieMach[]=array(
+                'tid' => $objRegieMach->id,
+                'datum' => $dattime,
+                'nkurz' => $objRegieMach->nkurz,
+                'knr' => $objRegieMach->knr,
+                'descript' => $objRegieMach->descript,
+                'ctitle' => $objRegieMach->ctitle,
+                'jtitle' => $objRegieMach->jtitle,
+                'minutes' => $objRegieMach->minutes/60,
+                'rjobid' => $objRegieMach->rjobid,
+                'rcatid' => $objRegieMach->rcatid,
+                'rminutes' => $objRegieMach->rminutes/60,
+                'tregiekommentar' => $objRegieMach->tregiekommentar,
+                'transatz' => $objRegieMach->transatz,
+                'trtext' => $objRegieMach->trtext,
+                'trdone' => $rdonetime
+            );
+          }
+          
+          //Template bereitstellen
+          $this->Template->regietime = $arrRegieTime;
+          $this->Template->regiemat = $arrRegieMat;
+          $this->Template->regiemach = $arrRegieMach;
+      }    
+    
+        
+    //** REGIELEIST CONFIRM
         if($_REQUEST['todo']=='rconfirm'){ // Regieleistung bestätigen
             $typ = $_REQUEST['typ'];
             if($typ==0){ // Time
@@ -404,10 +463,8 @@ class ModuleRegie extends \Contao\Module
              //header ( 'Location: verkauf.html?trg=vkf&todo=report&proj='.$_REQUEST['proj'] );
         }
         
-        //Regieleistung editieren/korrigieren > Daten bereitstellen
+        //REGIERAPPORT EDITIEREN
         if($_REQUEST['todo']=='rleistedit'){ 
-            $typ=$_REQUEST['typ'];
-            if($typ==0){ // Time
                 $sql='SELECT tl_timerec.id as id, datum, jobid, catid, tl_timerec.pid, rjobid, rcatid, trnumber, tl_category.title as ctitle, tl_jobs.title as jtitle, minutes, rminutes, tregiekommentar,  tl_timerec.descript as descript, tregiekommentar, transatz, trtext, trdone from tl_timerec, tl_category, tl_jobs WHERE tl_timerec.catid = tl_category.id AND tl_timerec.jobid = tl_jobs.id AND tl_timerec.id = '.$_REQUEST['id'];
                 $objRegieTime = \Database::getInstance()->execute($sql);
                 $dattime = date("d.m.Y", $objRegieTime->datum);
@@ -433,7 +490,7 @@ class ModuleRegie extends \Contao\Module
             );
             $this->Template->arledit = $arrRegieTime;
             $this->Template->rledit = "rledit";
-            } elseif($typ==1) { // Mat
+        
                 $sql='SELECT * from tl_costrec WHERE tl_costrec.id = '.$_REQUEST['id'];
                 $objRegieMat = \Database::getInstance()->execute($sql);
                 $datmat = date("d.m.Y", $objRegieMat->datum);
@@ -468,7 +525,7 @@ class ModuleRegie extends \Contao\Module
             $this->Template->arledit = $arrRegieMat;
             $this->Template->rledit = "rledit";
                 
-            } elseif($typ==2) { // Machine
+      
                 $sql='SELECT tl_machrec.id as id, datum, jobid, catid, rjobid, rcatid, tl_machrec.pid, tl_category.title as ctitle, tl_jobs.title as jtitle, minutes, rminutes, tregiekommentar, tl_machrec.descript as descript, tregiekommentar, transatz, trtext, trdone from tl_machrec, tl_category, tl_jobs WHERE tl_machrec.catid = tl_category.id AND tl_machrec.jobid = tl_jobs.id AND tl_machrec.id = '.$_REQUEST['id'];
                 $objRegieTime = \Database::getInstance()->execute($sql);
                 $dattime = date("d.m.Y", $objRegieTime->datum);
@@ -494,8 +551,10 @@ class ModuleRegie extends \Contao\Module
             );
             $this->Template->arledit = $arrRegieTime;
             $this->Template->rledit = "rledit";
-            }  
+    
         }    
+        
+        
         // ** BEARBEITETE REGIELEISTUNGEN SPEICHERN
         if($_REQUEST['todo']=='saverleistedit'){
                 if($_REQUEST['typ']==0){
@@ -533,7 +592,7 @@ class ModuleRegie extends \Contao\Module
                 }  
          
         
-        } // **** ENDE BEREICH VKF
+        
     if($_REQUEST['todo']=='report'||$todo=='report'){
         $this->Template->todo = 'report';
         //Projektdaten ausliefern
