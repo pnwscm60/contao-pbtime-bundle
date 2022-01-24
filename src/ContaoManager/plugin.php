@@ -19,7 +19,7 @@ class Plugin implements BundlePluginInterface
     public function getBundles(ParserInterface $parser)
     {
         return [
-            BundleConfig::create(Pnwscm60ContaoPbtimeBundle::class)
+            BundleConfig::create(ContaoPbtimeBundle::class)
                 ->setLoadAfter([ContaoCoreBundle::class]),
         ];
     }
