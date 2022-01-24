@@ -6,9 +6,9 @@
  *
  * @license LGPL-3.0-or-later
  */
-namespace Pnwscm60\PbtimeBundle;
+namespace Pnwscm60\ContaoPbtimeBundle;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 /* Configure the Contao Pbtime Bundle */
-class Pnwscm60PbtimeBundle extends Bundle
+class ContaoPbtimeBundle extends Bundle
 {
 }
