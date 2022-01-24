@@ -1,7 +1,7 @@
 {
     "name": "pnwscm60/contao-pbtime-bundle",
     "type": "contao-bundle",
-    "description": "Concerto extension für Contao",
+    "description": "worktime extension for Contao",
     "license": "LGPL-3.0-or-later",
     "authors": [
         {
@@ -10,8 +10,8 @@
         }
     ],
     "require": {
-        "php": "^7.3",
-        "contao/core-bundle": "^4.8"
+        "php": "^7.4",
+        "contao/core-bundle": "^4.9"
     },
     "require-dev": {
         "contao/manager-plugin": "^2.0",
@@ -24,7 +24,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Pnwscm60\\PbtimeBundle\\": "src/"
+            "Pnwscm60\\ContaoPbtimeBundle\\": "src/"
         }
     },
     "classmap": [
@@ -37,6 +37,6 @@
                    "src/Resources/contao/templates/"
 		],
     "extra": {
-         "contao-manager-plugin": "Pnwscm60\\PbtimeBundle\\ContaoManager\\Plugin"
+         "contao-manager-plugin": "Pnwscm60\\ContaoPbtimeBundle\\ContaoManager\\Plugin"
     }
 }
