@@ -1,5 +1,5 @@
 <?php
-namespace Pnwscm60\PbtimeBundle\Module;
+namespace Pnwscm60\ContaoPbtimeBundle\Module;
 class ModuleProfil extends \Contao\Module
 {
 	/**
