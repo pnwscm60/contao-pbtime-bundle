@@ -3,14 +3,14 @@
  * Back end modules
  * Front end modules
  */
-use Pnwscm60\PbtimeBundle\Module\ModuleErfassen;
-use Pnwscm60\PbtimeBundle\Module\ModuleAdmin;
-use Pnwscm60\PbtimeBundle\Module\ModuleDaily;
-use Pnwscm60\PbtimeBundle\Module\ModuleProfil;
-use Pnwscm60\PbtimeBundle\Module\ModuleRReport;
-use Pnwscm60\PbtimeBundle\Module\ModuleReport;
-use Pnwscm60\PbtimeBundle\Module\ModuleVerkauf;
-use Pnwscm60\PbtimeBundle\Module\ModuleRegie;
+use Pnwscm60\ContaoPbtimeBundle\Module\ModuleErfassen;
+use Pnwscm60\ContaoPbtimeBundle\Module\ModuleAdmin;
+use Pnwscm60\ContaoPbtimeBundle\Module\ModuleDaily;
+use Pnwscm60\ContaoPbtimeBundle\Module\ModuleProfil;
+use Pnwscm60\ContaoPbtimeBundle\Module\ModuleRReport;
+use Pnwscm60\ContaoPbtimeBundle\Module\ModuleReport;
+use Pnwscm60\ContaoPbtimeBundle\Module\ModuleVerkauf;
+use Pnwscm60\ContaoPbtimeBundle\Module\ModuleRegie;
 $GLOBALS['FE_MOD']['pbtime'] = [ 
 	'erfassen' => ModuleErfassen::class,
 	'admin' => ModuleAdmin::class,
