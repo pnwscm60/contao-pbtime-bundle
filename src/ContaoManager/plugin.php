@@ -6,19 +6,20 @@
  *
  * @license LGPL-3.0-or-later
  */
-namespace Pnwscm60\PbtimeBundle\ContaoManager;
+namespace Pnwscm60\ContaoPbtimeBundle\ContaoManager;
 
 use Contao\CoreBundle\ContaoCoreBundle;
 use Contao\ManagerPlugin\Bundle\BundlePluginInterface;
 use Contao\ManagerPlugin\Bundle\Config\BundleConfig;
 use Contao\ManagerPlugin\Bundle\Parser\ParserInterface;
+use Pnwscm60\ContaoPbtimeBundle\ContaoPbtimeBundle
 
 class Plugin implements BundlePluginInterface
 {
     public function getBundles(ParserInterface $parser)
     {
         return [
-            BundleConfig::create(Pnwscm60PbtimeBundle::class)
+            BundleConfig::create(ContaoPbtimeBundle::class)
                 ->setLoadAfter([ContaoCoreBundle::class]),
         ];
     }
