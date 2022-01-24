@@ -18,7 +18,7 @@ class Plugin implements BundlePluginInterface
         return [
             BundleConfig::create('Pnwscm60\PbtimeBundle\Pnwscm60PbtimeBundle')
                 ->setLoadAfter(['Contao\CoreBundle\ContaoCoreBundle'])
-                ->setReplace(['concerto']),
+                ->setReplace(['pbtime']),
         ];
     }
 }
