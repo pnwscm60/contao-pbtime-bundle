@@ -1,7 +1,13 @@
 <?php
+declare(strict_types=1);
 /*
-*	DCA für pbtime
-*	© 2017 Markus Schenker, Phi Network
+ * This file is part of pbwork.
+ * DCA für pbtime
+ * (c) Markus Schenker 2022 <scm@olternativ.ch>
+ * @license LGPL-3.0-or-later
+ * For the full copyright and license information,
+ * please view the LICENSE file that was distributed with this source code.
+ * @link https://github.com/pnwscm60/contao-pbwork-bundle
 * Ergänzung tl_member
 * 
 */
